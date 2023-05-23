@@ -46,7 +46,6 @@ export class LinearRegressor {
       mean[1] += y[i];
       ++i;
     }
-    console.log("MEANS", mean);
     mean[0] = mean[0] / n;
     mean[1] = mean[1] / n;
 
@@ -57,7 +56,6 @@ export class LinearRegressor {
       stddev[1] += (x[i] - mean[0]) * (x[i] - mean[0]);
       ++i;
     }
-    console.log(stddev, mean);
     const slope = stddev[0] / stddev[1];
     const intercept = mean[1] - slope * mean[0];
     const predict = (x: number) => intercept + (slope * x);
