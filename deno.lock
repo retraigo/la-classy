@@ -1,0 +1,10 @@
+{
+  "version": "2",
+  "remote": {
+    "https://deno.land/x/python@0.2.4/mod.ts": "36292020f3a7e8c9774d5de7fe32e261b3b5ddfbb6689a78bb499014d40baa82",
+    "https://deno.land/x/python@0.2.4/src/ffi.ts": "507237560989233ea5594c64c94425017025e5740891c242bf3c1b818e4531a7",
+    "https://deno.land/x/python@0.2.4/src/python.ts": "dfb1e266cb64acb34cf7ba146d1b38e033c12061c266cab16bc0ef4680abfe35",
+    "https://deno.land/x/python@0.2.4/src/symbols.ts": "2c87cb1a468bea2e36df21c015232d49cf019e12ecd96a53069d9fa26dd60503",
+    "https://deno.land/x/python@0.2.4/src/util.ts": "440bd1d13558c2a826df60f98d8448abe57e40949d91fd73a9a81f10708547ef"
+  }
+}
