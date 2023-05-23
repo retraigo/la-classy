@@ -39,4 +39,4 @@ jobs:
           files: |
             target/release/libclassylala.so
             target/release/libclassylala.dylib
-            target/release/libclassylala.dll
+            target/release/classylala.dll
