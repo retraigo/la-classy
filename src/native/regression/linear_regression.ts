@@ -12,11 +12,6 @@ export class LinearRegressor {
     return this.intercept + (this.slope * x);
   }
   train(x: ArrayLike<number>, y: ArrayLike<number>) {
-    if (x.length !== y.length) {
-      throw new Error(
-        `Arrays must be of same length. Received size (${x.length}, ${y.length}).`,
-      );
-    }
     if (!x.length || !y.length) {
       throw new Error(
         `Arrays must not be empty. Received size (${x.length}, ${y.length}).`,
