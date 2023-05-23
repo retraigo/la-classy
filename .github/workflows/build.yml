@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install rust
+        uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: nightly
+
+      - name: Build
+        shell: bash
+        run: |
+          set -xeuo pipefail
+          rustc --version
+          cargo --version
+          cargo build --release
+          
+      - name: Release
+        uses: softprops/action-gh-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "release draft"
+          draft: true
+          files: |
+            target/release/libclassylala.so
+            target/release/libclassylala.dylib
+            target/release/libclassylala.dll
