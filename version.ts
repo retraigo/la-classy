@@ -1,0 +1,1 @@
+export const CLASSY_LALA_VERSION = "v0.0.1"
