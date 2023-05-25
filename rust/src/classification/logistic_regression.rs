@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::{DMatrix, DVector, Dyn, VecStorage};
+use na::{DMatrix, DVector};
 
 pub struct LogisticRegressionResult {
     pub weights: DMatrix<f32>,
@@ -87,4 +87,8 @@ pub unsafe extern "C" fn logistic_regression_predict_y(
         .weights
         .dot(&DMatrix::from_row_slice(1, _res.n_features, x));
     return y;
+}
+#[no_mangle]
+pub extern "C" fn logistic_regression_free_res(res: *const LogisticRegressionResult) {
+    let _res = res.to_owned();
 }
