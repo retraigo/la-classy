@@ -65,6 +65,9 @@ pub unsafe extern "C" fn logistic_regression(
 
         // Update weights
         weights = weights - DMatrix::from_vec(1, n_features, weight_updates);
+        if !silent {
+            println!("Finished epoch {}", i);
+        }
     }
     let res = LogisticRegressionResult {
         weights,
