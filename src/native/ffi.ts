@@ -12,7 +12,18 @@ const options: FetchOptions = {
   cache: "reloadAll",
 };
 
-const symbols = {
+const logistic_regression_sym = {
+  logistic_regression: {
+    parameters: ["buffer", "buffer", "usize", "usize", "usize", "usize", "usize"],
+    result: "pointer",
+  } as const,
+  logistic_regression_predict_y: {
+    parameters: ["pointer", "buffer"],
+    result: "f32",
+  } as const,
+}
+
+const linear_regression_sym = {
   linear_regression: {
     parameters: ["buffer", "buffer", "usize", "usize"],
     result: "pointer",
@@ -35,6 +46,8 @@ const symbols = {
   } as const,
 };
 
+const symbols = {...linear_regression_sym, ...logistic_regression_sym}
+
 const classy: Deno.DynamicLibrary<typeof symbols> = await dlopen(
   options,
   symbols,
@@ -48,4 +61,9 @@ export const linear_regression = {
   get_intercept: cs.linear_regression_get_intercept,
   get_r2: cs.linear_regression_get_r2,
   get_slope: cs.linear_regression_get_slope,
+};
+
+export const logistic_regression = {
+  logistic_regression: cs.logistic_regression,
+  logistic_regression_predict_y: cs.logistic_regression_predict_y,
 };

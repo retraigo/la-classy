@@ -9,3 +9,4 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+nalgebra = "0.32.2"

@@ -68,3 +68,4 @@ pub unsafe extern "C" fn linear_regression(
     };
     return std::mem::transmute::<Box<LinearRegressionResult>, isize>(std::boxed::Box::new(res)) as isize;
 }
+

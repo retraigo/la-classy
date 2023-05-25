@@ -1,3 +1,4 @@
 /target
 /ignore
 /rust/target
+.vscode/
