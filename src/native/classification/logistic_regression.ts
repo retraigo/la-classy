@@ -8,10 +8,12 @@ export class LogisticRegressor {
     this.epochs = epochs;
     this.silent = silent;
   }
+  /** Predict the class of an array of features */
   predict(x: Float32Array): number {
     if (this.#backend === null) throw new Error("Model not trained yet.");
     return logistic_regression.logistic_regression_predict_y(this.#backend, x);
   }
+  /** Train the regressor */
   train(x: ArrayLike<Float32Array>, y: ArrayLike<number>) {
     if (this.#backend !== null) throw new Error("Model already trained.");
     if (!x.length || !y.length) {
