@@ -15,7 +15,7 @@ export class LogisticRegressor {
   /** Predict the class of an array of features */
   predict(x: Float32Array): number {
     if (this.#backend === null) throw new Error("Model not trained yet.");
-    return logistic_regression.logistic_regression_predict_y(this.#backend, x);
+    return logistic_regression.logistic_regression_predict_y(this.#backend, x) > 0.5 ? 1 : 0;
   }
   /** Train the regressor */
   train(x: ArrayLike<Float32Array>, y: ArrayLike<number>) {
