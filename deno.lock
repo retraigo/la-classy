@@ -39,6 +39,13 @@
     "https://deno.land/x/python@0.2.4/src/ffi.ts": "507237560989233ea5594c64c94425017025e5740891c242bf3c1b818e4531a7",
     "https://deno.land/x/python@0.2.4/src/python.ts": "dfb1e266cb64acb34cf7ba146d1b38e033c12061c266cab16bc0ef4680abfe35",
     "https://deno.land/x/python@0.2.4/src/symbols.ts": "2c87cb1a468bea2e36df21c015232d49cf019e12ecd96a53069d9fa26dd60503",
-    "https://deno.land/x/python@0.2.4/src/util.ts": "440bd1d13558c2a826df60f98d8448abe57e40949d91fd73a9a81f10708547ef"
+    "https://deno.land/x/python@0.2.4/src/util.ts": "440bd1d13558c2a826df60f98d8448abe57e40949d91fd73a9a81f10708547ef",
+    "https://deno.land/x/vectorizer@v0.0.1/mod.ts": "d6b7ac161b614a7289843406ccae3f82b001ad72f4905bc75ec84a408832aac7",
+    "https://deno.land/x/vectorizer@v0.0.1/src/mod.ts": "6d8b813646aadc20979b09e0e0b8d3d2d227ec85121998b39e7b5bc68782406b",
+    "https://deno.land/x/vectorizer@v0.0.1/src/text/base.ts": "44c778d86a11ab4fb4eba5c68d9fa631f1fd726acf453fd35cbe022ce43c2c17",
+    "https://deno.land/x/vectorizer@v0.0.1/src/text/count_vectorizer.ts": "88697548a989ec8e3cb3a20e0596675d146f670b007485a44c20fc5d2e407074",
+    "https://deno.land/x/vectorizer@v0.0.1/src/text/mod.ts": "7925b3765f8049744d482aa53787e85fb28963eeab66f9d2ebd51549e77b09e0",
+    "https://deno.land/x/vectorizer@v0.0.1/src/text/tf_idf_transformer.ts": "e6e6e508cf0be20afeb0a84e384ffc77488a7018026159bf0e882db50131f170",
+    "https://deno.land/x/vectorizer@v0.0.1/src/util.ts": "108090923f2a86f59e5172a12ce798c1acdd7ff436aae6be208b2a92ac8c41a3"
   }
 }
