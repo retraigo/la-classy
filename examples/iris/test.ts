@@ -23,7 +23,10 @@ const data1 = parse(_data1);
 const testx = data1.map(fl => new Float32Array(fl.slice(0, 4).map(Number)))
 const testy = data1.map(fl => ymap.indexOf(fl[4]))
 
+let acc = 0
 testx.forEach((fl, i) => {
     const yp = reg.predict(fl)
-    console.log(fl, "expected", testy[i] === 0 ? "negative" : "positive", "got", yp)
+    if(yp === testy[i]) acc += 1
+    console.log("expected", testy[i] === 0 ? "negative" : "positive", "got", yp)
  })
+ console.log("Accuracy: ", (acc/testx.length))
