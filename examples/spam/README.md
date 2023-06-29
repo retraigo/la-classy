@@ -1,6 +1,3 @@
 # SMS Spam/Ham Classification
 
-Try:
-```sh
-$ deno run -A --unstable https://deno.land/x/vectorizer/examples/spam/test.ts
-```
+Clone the repo and run `deno run -A --unstable examples/spam/test.ts`
