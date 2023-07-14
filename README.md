@@ -1,5 +1,6 @@
-# Classy Lala
-<img src="/assets/lala.webp" width="256px" height="256px" alt="La Lala" />
+<img align="center" src="/assets/lala.webp" alt="La Lala" height="256px" width="100%">
+
+<h1 align="center">Classy Lala</h1>
 
 WIP Regression and Classification ML library for Deno.
 
