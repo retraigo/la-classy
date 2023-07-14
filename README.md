@@ -1,4 +1,4 @@
-<img align="center" src="/assets/lala.webp" alt="La Lala" height="256px" width="100%">
+<img align="center" src="/assets/lala.webp" alt="La Lala" height="256px" width="auto">
 
 <h1 align="center">Classy Lala</h1>
 
