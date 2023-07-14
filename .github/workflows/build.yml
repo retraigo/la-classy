@@ -19,7 +19,7 @@ jobs:
       - name: Install rust
         uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: nightly
+          rust-version: 1.71.0
 
       - name: Build
         shell: bash
