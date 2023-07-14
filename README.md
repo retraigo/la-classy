@@ -1,4 +1,5 @@
 # Classy Lala
+![La Lala](/assets/lala.webp)
 
 WIP Regression and Classification ML library for Deno.
 
@@ -11,3 +12,5 @@ ToDo:
 - Decision Tree Classifier
 - Support Vector Machine
 - Random Forest Classifier
+
+Check out the [examples](/examples/)!
