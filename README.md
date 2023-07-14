@@ -1,5 +1,5 @@
 # Classy Lala
-![La Lala](/assets/lala.webp)
+<img src="/assets/lala.webp" width="256px" height="256px" alt="La Lala" />
 
 WIP Regression and Classification ML library for Deno.
 
