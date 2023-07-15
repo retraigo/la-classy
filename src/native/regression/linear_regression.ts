@@ -1,4 +1,4 @@
-import { linear_regression } from "../ffi.ts";
+import { linear_regression } from "../ffi/ffi.ts";
 export class LinearRegressor {
   slope: number;
   intercept: number;
@@ -6,9 +6,12 @@ export class LinearRegressor {
   constructor() {
     this.slope = NaN;
     this.intercept = NaN;
-    this.r2 = NaN;  }
+    this.r2 = NaN;
+  }
   predict(x: number): number {
-    if (isNaN(this.slope) || isNaN(this.intercept)) throw new Error("Model not trained yet.");
+    if (isNaN(this.slope) || isNaN(this.intercept)) {
+      throw new Error("Model not trained yet.");
+    }
     return this.intercept + (this.slope * x);
   }
   train(x: ArrayLike<number>, y: ArrayLike<number>) {
@@ -21,7 +24,7 @@ export class LinearRegressor {
     const dy = Float32Array.from(y);
     const ddx = new Uint8Array(dx.buffer);
     const ddy = new Uint8Array(dy.buffer);
-    const linregress = linear_regression.linear_regression(
+    const linregress = linear_regression.train(
       ddx,
       ddy,
       x.length,
@@ -30,6 +33,6 @@ export class LinearRegressor {
     this.r2 = linear_regression.get_r2(linregress);
     this.slope = linear_regression.get_slope(linregress);
     this.intercept = linear_regression.get_intercept(linregress);
-    linear_regression.free_res(linregress)
+    linear_regression.free_res(linregress);
   }
 }
