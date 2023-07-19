@@ -8,10 +8,11 @@
 /** Import csv parser from the standard library */
 import { parse } from "https://deno.land/std@0.188.0/csv/parse.ts";
 /** Import Logistic Regressor (https://deno.land/x/classylala/src/native/mod.ts) */
-import { LogisticRegressor } from "../../src/native/mod.ts";
+import { LogisticRegressor } from "../../src/native/classification.ts";
+import { splitData } from "../../src/helpers/split.ts";
 
 /** Define classes */
-const ymap = ["Iris-setosa", "Iris-versicolor"];
+const ymap = ["Setosa", "Versicolor"];
 
 /** Read the training dataset */
 const _data = Deno.readTextFileSync("examples/iris/iris.csv");
@@ -21,26 +22,23 @@ const data = parse(_data);
 const reg = new LogisticRegressor({ epochs: 10000, silent: true });
 
 /** Get the predictors (x) and classes (y) */
-const x = data.map((fl) => new Float32Array(fl.slice(0, 4).map(Number)));
+const x = data.map((fl) => fl.slice(0, 4).map(Number));
 const y = data.map((fl) => ymap.indexOf(fl[4]));
 
+const [train, test]= splitData(x, y, [7, 3], true)
+
+console.log(train, test)
+
 /** Train the model with the training data */
-reg.train(x, y);
+reg.train(train[0], train[1]);
 
-/** Read the testing dataset */
-const _data1 = Deno.readTextFileSync("examples/iris/iris_test.csv");
-const data1 = parse(_data1);
-
-/** Get the predictors and classes */
-const testx = data1.map((fl) => new Float32Array(fl.slice(0, 4).map(Number)));
-const testy = data1.map((fl) => ymap.indexOf(fl[4]));
 
 /** Get the accuracy score */
 let acc = 0;
-testx.forEach((fl, i) => {
+test[0].forEach((fl, i) => {
   const yp = reg.predict(fl);
-  if (yp === testy[i]) acc += 1;
+  if (yp === test[1][i]) acc += 1;
   // uncomment this line to test it live
-  // console.log("expected", ymap[testy[i]], "got", ymap[yp])
+   console.log("expected", test[1][i], "got", yp)
 });
-console.log("Accuracy: ", acc / testx.length);
+console.log("Accuracy: ", acc / test[0].length);

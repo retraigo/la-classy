@@ -15,3 +15,5 @@ ToDo:
 - Random Forest Classifier
 
 Check out the [examples](/examples/)!
+- [Iris classification](/examples/iris/) `10,000 Epochs; Accuracy: 1`
+- [Spam/Ham classification](/examples/spam/) `200 Epochs; Accuracy:  0.9395465994962217`

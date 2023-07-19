@@ -1,20 +1,16 @@
 extern crate nalgebra as na;
-
+use crate::common::functions::sigmoid;
 use na::{DMatrix, DVector};
-
+// use std::collections::HashSet;
 pub struct LogisticRegressionResult {
     pub weights: DMatrix<f32>,
     pub n_features: usize,
 }
 
-pub fn sigmoid(x: f32) -> f32 {
-    1.0 / (1.0 + (-x).exp())
-}
-
 #[no_mangle]
 pub unsafe extern "C" fn logistic_regression(
     x_ptr: *const f32,
-    y_ptr: *const f32,
+    y_ptr: *const u32,
     x_len: usize,
     y_len: usize,
     n_features: usize,
@@ -24,6 +20,8 @@ pub unsafe extern "C" fn logistic_regression(
     println!("EPOCHS {}", epochs);
     let x = std::slice::from_raw_parts(x_ptr, x_len * n_features);
     let y = std::slice::from_raw_parts(y_ptr, y_len);
+    // let classes: HashSet<&u32> = HashSet::from_iter(y.into_iter());
+    // let n_classes = classes.len();
 
     let mut weights: DMatrix<f32> = DMatrix::zeros(1, n_features);
     for i in 0..n_features {
@@ -41,7 +39,7 @@ pub unsafe extern "C" fn logistic_regression(
             let error: f32 = (0..x_len)
                 .map(|i| {
                     let h_i = hypotheses.get(i).unwrap();
-                    let y_i = y[i];
+                    let y_i = y[i] as f32;
 
                     return (y_i * h_i.log2() + (1.0 - y_i) * (1.0 - h_i).log2()) as f32;
                 })
@@ -51,7 +49,7 @@ pub unsafe extern "C" fn logistic_regression(
         }
 
         let errors: Vec<f32> = (0..x_len)
-            .map(|i| hypotheses.get(i).unwrap() - y[i])
+            .map(|i| hypotheses.get(i).unwrap() - (y[i] as f32))
             .collect();
 
         let err = DVector::from_vec(errors);
@@ -89,7 +87,7 @@ pub unsafe extern "C" fn logistic_regression_predict_y(
     let y = _res
         .weights
         .dot(&DMatrix::from_row_slice(1, _res.n_features, x));
-    return y;
+    return sigmoid(y);
 }
 #[no_mangle]
 pub extern "C" fn logistic_regression_free_res(res: *const LogisticRegressionResult) {
