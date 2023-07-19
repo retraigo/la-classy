@@ -9,14 +9,14 @@ export const linear_regression_sym = {
   } as const,
   linear_regression_get_intercept: {
     parameters: ["pointer"],
-    result: "f32",
+    result: "f64",
   } as const,
   linear_regression_get_r2: {
     parameters: ["pointer"],
-    result: "f32",
+    result: "f64",
   } as const,
   linear_regression_get_slope: {
     parameters: ["pointer"],
-    result: "f32",
+    result: "f64",
   } as const,
 };

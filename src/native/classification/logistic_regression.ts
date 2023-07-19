@@ -19,7 +19,7 @@ export class LogisticRegressor {
   /** Predict the class of an array of features */
   predict(x: ArrayLike<number>): number {
     if (this.#backend === null) throw new Error("Model not trained yet.");
-    const dx = new Float32Array(x.length);
+    const dx = new Float64Array(x.length);
     dx.set(x, 0);
     return logistic_regression.predict(this.#backend, dx) > 0.5 ? 1 : 0;
   }
@@ -32,7 +32,7 @@ export class LogisticRegressor {
       );
     }
 
-    const dx = new Float32Array(x.length * x[0].length);
+    const dx = new Float64Array(x.length * x[0].length);
     for (const i in x) {
       dx.set(x[i], Number(i) * x[i].length);
     }

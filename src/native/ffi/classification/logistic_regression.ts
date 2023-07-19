@@ -13,7 +13,7 @@ export const logistic_regression_sym = {
     } as const,
     logistic_regression_predict_y: {
       parameters: ["pointer", "buffer"],
-      result: "f32",
+      result: "f64",
     } as const,
     logistic_regression_free_res: {
       parameters: ["pointer"],

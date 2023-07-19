@@ -20,8 +20,8 @@ export class LinearRegressor {
         `Arrays must not be empty. Received size (${x.length}, ${y.length}).`,
       );
     }
-    const dx = Float32Array.from(x);
-    const dy = Float32Array.from(y);
+    const dx = Float64Array.from(x);
+    const dy = Float64Array.from(y);
     const ddx = new Uint8Array(dx.buffer);
     const ddy = new Uint8Array(dy.buffer);
     const linregress = linear_regression.train(

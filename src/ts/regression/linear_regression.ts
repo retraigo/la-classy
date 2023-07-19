@@ -48,7 +48,7 @@ export class LinearRegressor {
     }
     mean[0] = mean[0] / n;
     mean[1] = mean[1] / n;
-
+    console.log("mean", mean)
     const stddev = [0, 0];
     i = 0;
     while (i < n) {
