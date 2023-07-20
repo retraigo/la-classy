@@ -45,13 +45,14 @@ xvec_test.forEach((fl, i) => {
   const yp = reg.predict(tfidf.transform([fl])[0]);
   if(yp === test[1][i]) acc += 1
   // Uncomment for logs
-  
+  /*
   console.log(
     "expected",
     [test[1][i]],
     "got",
     [yp],
   );
+  */
   
 });
 console.log("Accuracy: ", (acc/xvec_test.length))

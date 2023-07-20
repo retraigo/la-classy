@@ -39,6 +39,6 @@ test[0].forEach((fl, i) => {
   const yp = reg.predict(fl);
   if (yp === test[1][i]) acc += 1;
   // uncomment this line to test it live
-   console.log("expected", test[1][i], "got", yp)
+  // console.log("expected", test[1][i], "got", yp)
 });
 console.log("Accuracy: ", acc / test[0].length);
