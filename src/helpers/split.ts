@@ -20,5 +20,3 @@ export function splitData<Tx, Ty>(
     ]];
   }
 }
-
-console.log(splitData([1, 2, 3, 4, 5], ["a", "b", "c", "d", "e"], [7, 3], true))
