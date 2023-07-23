@@ -6,10 +6,22 @@ export const logistic_regression_sym = {
         "usize",
         "usize",
         "usize",
+        "f64",
         "usize",
         "usize",
       ],
       result: "pointer",
+    } as const,
+    logistic_regression_confusion_matrix: {
+      parameters: [
+        "pointer",
+        "buffer",
+        "buffer",
+        "usize",
+        "usize",
+        "buffer",
+      ],
+      result: "void",
     } as const,
     logistic_regression_predict_y: {
       parameters: ["pointer", "buffer"],

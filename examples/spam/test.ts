@@ -37,30 +37,13 @@ const x_tfidf = tfidf.transform(x_vec)
 const reg = new LogisticRegressor({ epochs: 200, silent: false });
 reg.train(x_tfidf, train[1]);
 
-const xvec_test = vec.transform(test[0])
+const xvec_test = tfidf.transform(vec.transform(test[0]))
 
 // Test for accuracy
-let acc = 0
-xvec_test.forEach((fl, i) => {
-  const yp = reg.predict(tfidf.transform([fl])[0]);
-  if(yp === test[1][i]) acc += 1
-  // Uncomment for logs
-  /*
-  console.log(
-    "expected",
-    [test[1][i]],
-    "got",
-    [yp],
-  );
-  */
-  
-});
-console.log("Accuracy: ", (acc/xvec_test.length))
-/*
-function parse(d: string): string[][] {
-  return d.split("\n").map((line) => {
-    const m = line.indexOf(" ");
-    return [line.slice(0, m), line.slice(m + 1)];
-  });
-}
-*/
+console.log("Trained Complete");
+
+/** Check Metrics */
+const cMatrix = reg.confusionMatrix(xvec_test, test[1]);
+
+console.log("Confusion Matrix: ", cMatrix)
+console.log("Accuracy: ", `${(cMatrix.true / cMatrix.size) * 10}%`);

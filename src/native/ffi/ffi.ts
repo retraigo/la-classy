@@ -35,5 +35,6 @@ export const linear_regression = {
 export const logistic_regression = {
   train: cs.logistic_regression,
   predict: cs.logistic_regression_predict_y,
+  confusion_matrix: cs.logistic_regression_confusion_matrix,
   free_res: cs.logistic_regression_free_res,
 };

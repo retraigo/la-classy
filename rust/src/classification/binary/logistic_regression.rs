@@ -10,7 +10,7 @@ pub struct LogisticRegressionResult {
 #[no_mangle]
 pub unsafe extern "C" fn logistic_regression(
     x_ptr: *const f64,
-    y_ptr: *const u32,
+    y_ptr: *const u8,
     x_len: usize,
     y_len: usize,
     n_features: usize,
@@ -37,14 +37,13 @@ pub unsafe extern "C" fn logistic_regression(
             .map(|x| sigmoid(weights.dot(&x)))
             .collect();
         if i % 100 == 0 && !silent {
-            // Calculate likelihood function for all parameters w
+            // Calculate log-like cost for all parameters w
             // logL(w) = ∑ (yi * log(hi) + (1 − yi) * log(1 − hi))
             let error: f64 = (0..x_len)
                 .map(|i| {
                     let h_i = hypotheses.get(i).unwrap();
                     let y_i = y[i] as f64;
-
-                    return (y_i * h_i.log2() + (1.0 - y_i) * (1.0 - h_i).log2()) as f64;
+                    y_i * h_i.log2() + (1.0 - y_i) * (1.0 - h_i).log2()
                 })
                 .sum::<f64>()
                 / x_len as f64;
@@ -67,7 +66,7 @@ pub unsafe extern "C" fn logistic_regression(
         // Update weights
         weights = weights - DMatrix::from_vec(1, n_features, weight_updates);
         if !silent {
-            println!("Finished epoch {}", i);
+            println!("Finished epoch {}", i + 1);
         }
     }
     let res = LogisticRegressionResult {
@@ -92,6 +91,42 @@ pub unsafe extern "C" fn logistic_regression_predict_y(
         .dot(&DMatrix::from_row_slice(1, _res.n_features, x));
     return sigmoid(y);
 }
+
+#[no_mangle]
+pub unsafe extern "C" fn logistic_regression_confusion_matrix(
+    res: *const LogisticRegressionResult,
+    x_ptr: *const f64,
+    y_ptr: *const u8,
+    x_len: usize,
+    y_len: usize,
+    matrix_ptr: *mut f64,
+) {
+    let _res = &*res;
+
+    let x = std::slice::from_raw_parts(x_ptr, _res.n_features * x_len);
+    let y = std::slice::from_raw_parts(y_ptr, y_len);
+    let data = DMatrix::from_row_slice(x_len, _res.n_features, x);
+    let res = std::slice::from_raw_parts_mut(matrix_ptr, 4);
+
+    for i in 0..x_len {
+        let row = data.row(i);
+        let target = y[i];
+        let guess = if sigmoid(_res.weights.dot(&row)) < 0.5 {
+            0
+        } else {
+            1
+        };
+        // True Positive, False Negative, False Positive, True Negative
+        match (guess, target) {
+            (0, 0) => res[3] += 1.0,
+            (0, 1) => res[1] += 1.0,
+            (1, 0) => res[2] += 1.0,
+            (1, 1) => res[0] += 1.0,
+            (_, _) => ()
+        }
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn logistic_regression_free_res(res: *const LogisticRegressionResult) {
     let _res = res.to_owned();

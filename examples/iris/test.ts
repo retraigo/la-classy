@@ -25,20 +25,15 @@ const reg = new LogisticRegressor({ epochs: 10000, silent: true });
 const x = data.map((fl) => fl.slice(0, 4).map(Number));
 const y = data.map((fl) => ymap.indexOf(fl[4]));
 
-const [train, test]= splitData(x, y, [7, 3], true)
-
-console.log(train, test)
+const [train, test] = splitData(x, y, [7, 3], true);
 
 /** Train the model with the training data */
 reg.train(train[0], train[1]);
 
+console.log("Trained Complete");
 
-/** Get the accuracy score */
-let acc = 0;
-test[0].forEach((fl, i) => {
-  const yp = reg.predict(fl);
-  if (yp === test[1][i]) acc += 1;
-  // uncomment this line to test it live
-  // console.log("expected", test[1][i], "got", yp)
-});
-console.log("Accuracy: ", acc / test[0].length);
+/** Check Metrics */
+const cMatrix = reg.confusionMatrix(test[0], test[1]);
+
+console.log("Confusion Matrix: ", cMatrix)
+console.log("Accuracy: ", cMatrix.true / cMatrix.size);
