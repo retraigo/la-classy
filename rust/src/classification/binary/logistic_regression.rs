@@ -14,6 +14,7 @@ pub unsafe extern "C" fn logistic_regression(
     x_len: usize,
     y_len: usize,
     n_features: usize,
+    learning_rate: f64,
     epochs: usize,
     silent: bool,
 ) -> isize {
@@ -36,6 +37,8 @@ pub unsafe extern "C" fn logistic_regression(
             .map(|x| sigmoid(weights.dot(&x)))
             .collect();
         if i % 100 == 0 && !silent {
+            // Calculate likelihood function for all parameters w
+            // logL(w) = ∑ (yi * log(hi) + (1 − yi) * log(1 − hi))
             let error: f64 = (0..x_len)
                 .map(|i| {
                     let h_i = hypotheses.get(i).unwrap();
@@ -57,7 +60,7 @@ pub unsafe extern "C" fn logistic_regression(
         let weight_updates: Vec<f64> = (0..n_features)
             .map(|i| {
                 let x_i = data.column(i);
-                0.001 * x_i.dot(&err)
+                learning_rate * x_i.dot(&err)
             })
             .collect();
 
