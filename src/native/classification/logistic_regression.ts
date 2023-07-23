@@ -1,4 +1,5 @@
 import { useUnique } from "../../../deps.ts";
+import { ConfusionMatrix } from "../../helpers/metrics.ts";
 import { logistic_regression } from "../ffi/ffi.ts";
 
 interface LogisticRegressorConfig {
@@ -6,36 +7,6 @@ interface LogisticRegressorConfig {
   silent?: boolean;
   epochs?: number;
 }
-class ConfusionMatrix {
-  truePositive: number;
-  falsePositive: number;
-  trueNegative: number;
-  falseNegative: number;
-  true: number;
-  false: number;
-  size: number;
-  constructor([tp, fn, fp, tn]: [number, number, number, number]) {
-    this.truePositive = tp;
-    this.falseNegative = fn;
-    this.falsePositive = fp;
-    this.trueNegative = tn;
-    this.true = tn + tp;
-    this.false = fn + fp;
-    this.size = this.true + this.false;
-  }
-  valueOf(): [number, number, number, number] {
-    return [
-      this.truePositive,
-      this.falseNegative,
-      this.falsePositive,
-      this.trueNegative,
-    ];
-  }
-  [Symbol.for("Deno.customInspect")]() {
-    return `\n${this.truePositive}\t${this.falseNegative}\n${this.falsePositive}\t${this.trueNegative}`;
-  }
-}
-
 /**
  * Logistic Regression
  */

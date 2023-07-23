@@ -10,6 +10,7 @@ import { parse } from "https://deno.land/std@0.188.0/csv/parse.ts";
 /** Import Logistic Regressor (https://deno.land/x/classylala/src/native/mod.ts) */
 import { LogisticRegressor } from "../../src/native/classification.ts";
 import { splitData } from "../../src/helpers/split.ts";
+import { accuracyScore } from "../../src/helpers/metrics.ts";
 
 /** Define classes */
 const ymap = ["Setosa", "Versicolor"];
@@ -36,4 +37,4 @@ console.log("Trained Complete");
 const cMatrix = reg.confusionMatrix(test[0], test[1]);
 
 console.log("Confusion Matrix: ", cMatrix)
-console.log("Accuracy: ", cMatrix.true / cMatrix.size);
+console.log("Accuracy: ", accuracyScore(cMatrix));
