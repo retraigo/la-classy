@@ -1,1 +1,1 @@
-export { linear_regression_sym } from "./regression/linear_regression.ts";
+export * from "./regression/linear_regression.ts";

@@ -3,6 +3,7 @@
     "build": "cargo build --release",
     "example:classification:iris": "deno run -A --unstable examples/iris/test.ts",
     "example:classification:spam": "deno run -A --unstable examples/spam/test.ts",
-    "example:regression:linear": "deno run -A --unstable examples/linear/test.ts"
+    "example:regression:linear": "deno run -A --unstable examples/linear/test.ts",
+    "example:regression:sgd": "deno run -A --unstable examples/linear/sgd.ts"
   }
 }

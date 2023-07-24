@@ -1,5 +1,8 @@
 import { dlopen, FetchOptions } from "https://deno.land/x/plug@1.0.2/mod.ts";
-import { linear_regression_sym } from "./regression.ts";
+import {
+  linear_regression_sym,
+  sgd_linear_regression_sym,
+} from "./regression.ts";
 import { logistic_regression_sym } from "./classification.ts";
 import { CLASSY_LALA_VERSION } from "../../../version.ts";
 
@@ -14,8 +17,11 @@ const options: FetchOptions = {
   cache: "reloadAll",
 };
 
-
-const symbols = { ...linear_regression_sym, ...logistic_regression_sym };
+const symbols = {
+  ...linear_regression_sym,
+  ...logistic_regression_sym,
+  ...sgd_linear_regression_sym,
+};
 
 const classy: Deno.DynamicLibrary<typeof symbols> = await dlopen(
   options,
@@ -30,6 +36,12 @@ export const linear_regression = {
   get_intercept: cs.linear_regression_get_intercept,
   get_r2: cs.linear_regression_get_r2,
   get_slope: cs.linear_regression_get_slope,
+};
+
+export const sgd_linear_regression = {
+  train: cs.sgd_linear_regression,
+  free_res: cs.sgd_linear_regression_free_res,
+  predict: cs.sgd_linear_regression_predict_y,
 };
 
 export const logistic_regression = {

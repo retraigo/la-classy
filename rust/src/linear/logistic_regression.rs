@@ -62,12 +62,11 @@ pub unsafe extern "C" fn logistic_regression(
                 learning_rate * x_i.dot(&err)
             })
             .collect();
+        println!("Weight updates are {:?}", weight_updates.as_slice());
+
 
         // Update weights
         weights = weights - DMatrix::from_vec(1, n_features, weight_updates);
-        if !silent {
-            println!("Finished epoch {}", i + 1);
-        }
     }
     let res = LogisticRegressionResult {
         weights,
