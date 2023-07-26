@@ -62,7 +62,6 @@ pub unsafe extern "C" fn logistic_regression(
                 learning_rate * x_i.dot(&err)
             })
             .collect();
-        println!("Weight updates are {:?}", weight_updates.as_slice());
 
 
         // Update weights

@@ -4,7 +4,8 @@
 extern crate nalgebra as na;
 
 use crate::common::functions::mean_squared_error;
-use na::{DMatrix, Matrix};
+use na::DMatrix;
+use rand::Rng;
 
 pub struct SgdLinearRegressionResult {
     pub weights: DMatrix<f64>,
@@ -24,6 +25,7 @@ pub unsafe extern "C" fn sgd_linear_regression(
     y_len: usize,
     n_features: usize,
     learning_rate: f64,
+    batch_size: usize,
     epochs: usize,
     silent: bool,
 ) -> isize {
@@ -32,44 +34,59 @@ pub unsafe extern "C" fn sgd_linear_regression(
     let inverse_n = 1.0 / y.len() as f64;
     // let classes: HashSet<&u32> = HashSet::from_iter(y.into_iter());
     // let n_classes = classes.len();
+    let mut rng = rand::thread_rng();
 
     let mut intercept = 0.0;
     let mut weights: DMatrix<f64> = DMatrix::zeros(1, n_features);
     for i in 0..n_features {
         weights[i] = 1.0;
     }
-
-    let mut data = DMatrix::from_row_slice(x_len, n_features, x);
-    data = data.try_normalize(1.0e-6).unwrap();
-
+    let data = DMatrix::from_row_slice(x_len, n_features, x);
+    let target = DMatrix::from_row_slice(y_len, 1, y);
     for i in 0..epochs {
-        let y1: Vec<f64> = data
-            .row_iter_mut()
-            .map(|x| weights.dot(&x) + intercept)
-            .collect();
+        let n_batches = data.nrows() / batch_size;
+        for _ in 0..(n_batches) {
+            let j = rng.gen_range(0..n_batches);
+            let remaining = data.nrows() - (j * batch_size);
+            let current_batch_size = if remaining < batch_size {
+                remaining
+            } else {
+                batch_size
+            };
+            let batch_data = data.rows(j * batch_size, current_batch_size);
+            let y1 = DMatrix::from_vec(
+                batch_data.nrows(),
+                1,
+                batch_data
+                    .row_iter()
+                    .map(|x| weights.dot(&x) + intercept)
+                    .collect(),
+            );
+            let errors = y1 - &target.rows(j * batch_size, current_batch_size);
 
+            //            println!("Errors are {:?}", errors.as_slice());
+            let weight_updates: Vec<f64> = (0..n_features)
+                .map(|i| {
+                    let x_i = batch_data.column(i);
+                    learning_rate * x_i.dot(&errors) * inverse_n * 2.0
+                })
+                .collect();
+            let intercept_update = errors.sum();
+            // Update weights
+            weights -= DMatrix::from_vec(1, n_features, weight_updates);
+
+            intercept -= learning_rate * (inverse_n * 2.0) * intercept_update;
+        }
         if i % 100 == 0 && !silent {
+            let y1: Vec<f64> = data
+                .row_iter()
+                .map(|x| weights.dot(&x) + intercept)
+                .collect();
             // Calculate MSE
             let error: f64 = mean_squared_error(y, y1.as_slice());
             println!("Epoch <{}: Current Errors {}", i, error);
         }
-        let errors = DMatrix::from_vec(x_len, 1, (0..x_len).map(|i| y1[i] - (y[i] as f64)).collect());
-        //        println!("Errors are {:?}", errors.as_slice());
-        let mut weight_updates = DMatrix::zeros(1, n_features);
-        let mut intercept_update = 0.0;
-        for i in 0..errors.len() {
-            let x_i = data.row(i);
-            let res = x_i * errors[i];
-            weight_updates += res;
-            intercept_update += errors[i];
-        }
-
-        // Update weights
-        weights = weights - learning_rate * (inverse_n * 2.0) * weight_updates;
-
-        intercept = intercept - learning_rate * (inverse_n * 2.0) * intercept_update;
     }
-    println!("Weights: {:?}", &weights.as_slice());
 
     let res = SgdLinearRegressionResult {
         weights,

@@ -10,3 +10,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 nalgebra = "0.32.3"
+rand = "0.8.5"

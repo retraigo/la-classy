@@ -32,6 +32,7 @@ export const sgd_linear_regression_sym = {
       "f64",
       "usize",
       "usize",
+      "usize",
     ],
     result: "pointer",
   } as const,

@@ -4,6 +4,7 @@ interface SgdLinearRegressorConfig {
   learningRate?: number;
   silent?: boolean;
   epochs?: number;
+  batchSize?: number;
 }
 /**
  * Linear Regression using Gradient Descent
@@ -13,11 +14,13 @@ export class SgdLinearRegressor {
   epochs: number;
   silent: boolean;
   learningRate: number;
-  constructor({ epochs, silent, learningRate }: SgdLinearRegressorConfig) {
+  batchSize: number;
+  constructor({ epochs, silent, learningRate, batchSize }: SgdLinearRegressorConfig) {
     this.#backend = null;
     this.epochs = epochs || 10;
     this.silent = silent || false;
     this.learningRate = learningRate || 0.001;
+    this.batchSize = batchSize || -1
   }
   destroy() {
     sgd_linear_regression.free_res(this.#backend);
@@ -53,6 +56,7 @@ export class SgdLinearRegressor {
       y.length,
       x[0].length,
       this.learningRate,
+      this.batchSize === -1 ? ~~(x.length / 10) : this.batchSize,
       this.epochs,
       Number(this.silent),
     );
