@@ -5,7 +5,8 @@
 WIP Regression and Classification ML library for Deno.
 
 Supports:
-- Linear Regression (1D)
+- Linear Regression (1D, OLS)
+- Linear Regression (Multivariate, with SGD)
 - Logistic Regression (binary classification)
 
 ToDo:
@@ -14,6 +15,4 @@ ToDo:
 - Support Vector Machine
 - Random Forest Classifier
 
-Check out the [examples](/examples/)!
-- [Iris classification](/examples/iris/) `10,000 Epochs; Accuracy: 1`
-- [Spam/Ham classification](/examples/spam/) `200 Epochs; Accuracy:  0.9395465994962217`
+Check out [deno-ml](https://github.com/retraigo/deno-ml) for examples!
