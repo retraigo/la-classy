@@ -1,3 +1,4 @@
+import { Matrix } from "../../helpers/vectorizer.ts";
 import { sgd_linear_regression } from "../ffi/ffi.ts";
 
 interface SgdLinearRegressorConfig {
@@ -34,29 +35,27 @@ export class SgdLinearRegressor {
     return sgd_linear_regression.predict(this.#backend, dx);
   }
   /** Train the regressor */
-  train(x: ArrayLike<ArrayLike<number>>, y: ArrayLike<number>) {
+  train(x: Matrix<Float64Array> | Matrix<Float32Array>, y: ArrayLike<number>) {
     if (this.#backend !== null) throw new Error("Model already trained.");
-    if (!x.length || !y.length) {
+    if (!x.nRows || !y.length) {
       throw new Error(
-        `Arrays must not be empty. Received size (${x.length}, ${y.length}).`,
+        `Arrays must not be empty. Received size (${x.nRows}, ${y.length}).`,
       );
     }
 
-    const dx = new Float64Array(x.length * x[0].length);
-    for (const i in x) {
-      dx.set(x[i], Number(i) * x[i].length);
-    }
+    const dx = new Float64Array(x.nRows * x.nCols);
+    dx.set(x.data)
     const dy = Float64Array.from(y);
     const ddx = new Uint8Array(dx.buffer);
     const ddy = new Uint8Array(dy.buffer)
     this.#backend = sgd_linear_regression.train(
       ddx,
       ddy,
-      x.length,
+      x.nRows,
       y.length,
-      x[0].length,
+      x.nCols,
       this.learningRate,
-      this.batchSize === -1 ? ~~(x.length / 10) : this.batchSize,
+      this.batchSize === -1 ? ~~(x.nRows / 10) : this.batchSize,
       this.epochs,
       Number(this.silent),
     );

@@ -1,4 +1,5 @@
 import { useUnique } from "../../../deps.ts";
+import { Matrix } from "../../helpers.ts";
 import { ConfusionMatrix } from "../../helpers/metrics.ts";
 import { logistic_regression } from "../ffi/ffi.ts";
 
@@ -22,20 +23,18 @@ export class LogisticRegressor {
     this.learningRate = learningRate || 0.001;
   }
   confusionMatrix(
-    x: ArrayLike<ArrayLike<number>>,
+    x: Matrix<Float32Array> | Matrix<Float64Array>,
     y: ArrayLike<number>,
   ): ConfusionMatrix {
     if (this.#backend == null) throw new Error("Model not trained.");
-    if (!x.length || !y.length) {
+    if (!x.nRows || !y.length) {
       throw new Error(
-        `Arrays must not be empty. Received size (${x.length}, ${y.length}).`,
+        `Arrays must not be empty. Received size (${x.nRows}, ${y.length}).`,
       );
     }
 
-    const dx = new Float64Array(x.length * x[0].length);
-    for (const i in x) {
-      dx.set(x[i], Number(i) * x[i].length);
-    }
+    const dx = new Float64Array(x.nRows * x.nCols);
+    dx.set(x.data)
     const dy = Uint8Array.from(y);
     const ddx = new Uint8Array(dx.buffer);
     const res = new Float64Array(4);
@@ -46,7 +45,7 @@ export class LogisticRegressor {
         this.#backend,
         ddx,
         dy,
-        x.length,
+        x.nRows,
         y.length,
         resPtr,
       );
@@ -69,18 +68,16 @@ export class LogisticRegressor {
     return logistic_regression.predict(this.#backend, dx) > 0.5 ? 1 : 0;
   }
   /** Train the regressor */
-  train(x: ArrayLike<ArrayLike<number>>, y: ArrayLike<number>) {
+  train(x: Matrix<Float32Array> | Matrix<Float64Array>, y: ArrayLike<number>) {
     if (this.#backend !== null) throw new Error("Model already trained.");
-    if (!x.length || !y.length) {
+    if (!x.nRows || !y.length) {
       throw new Error(
-        `Arrays must not be empty. Received size (${x.length}, ${y.length}).`,
+        `Arrays must not be empty. Received size (${x.nRows}, ${y.length}).`,
       );
     }
 
-    const dx = new Float64Array(x.length * x[0].length);
-    for (const i in x) {
-      dx.set(x[i], Number(i) * x[i].length);
-    }
+    const dx = new Float64Array(x.nRows * x.nCols);
+    dx.set(x.data)
     const dy = Uint8Array.from(y);
     const ddx = new Uint8Array(dx.buffer);
     const classes = useUnique(y);
@@ -88,9 +85,9 @@ export class LogisticRegressor {
       this.#backend = logistic_regression.train(
         ddx,
         dy,
-        x.length,
+        x.nRows,
         y.length,
-        x[0].length,
+        x.nCols,
         this.learningRate,
         this.epochs,
         Number(this.silent),
