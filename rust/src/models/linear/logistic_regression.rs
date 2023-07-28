@@ -1,7 +1,9 @@
 extern crate nalgebra as na;
-use crate::common::functions::sigmoid;
-use na::{DMatrix, DVector};
-// use std::collections::HashSet;
+use na::DMatrix;
+use rand::Rng;
+
+use crate::common::functions::{logit, sigmoid};
+
 pub struct LogisticRegressionResult {
     pub weights: DMatrix<f64>,
     pub n_features: usize,
@@ -10,62 +12,62 @@ pub struct LogisticRegressionResult {
 #[no_mangle]
 pub unsafe extern "C" fn logistic_regression(
     x_ptr: *const f64,
-    y_ptr: *const u8,
+    y_ptr: *const f64,
     x_len: usize,
     y_len: usize,
     n_features: usize,
     learning_rate: f64,
+    batch_size: usize,
     epochs: usize,
     silent: bool,
 ) -> isize {
     println!("EPOCHS {}", epochs);
     let x = std::slice::from_raw_parts(x_ptr, x_len * n_features);
-    let y = std::slice::from_raw_parts(y_ptr, y_len);
-    // let classes: HashSet<&u32> = HashSet::from_iter(y.into_iter());
-    // let n_classes = classes.len();
+    let y: &[f64] = std::slice::from_raw_parts(y_ptr, y_len);
+
+    let mut rng = rand::thread_rng();
 
     let mut weights: DMatrix<f64> = DMatrix::zeros(1, n_features);
     for i in 0..n_features {
         weights[i] = 1.0;
     }
 
-    let mut data = DMatrix::from_row_slice(x_len, n_features, x);
+    let data = DMatrix::from_row_slice(x_len, n_features, x);
+    let target = DMatrix::from_row_slice(y_len, 1, y);
 
     for i in 0..epochs {
-        let hypotheses: Vec<f64> = data
-            .row_iter_mut()
-            .map(|x| sigmoid(weights.dot(&x)))
-            .collect();
         if i % 100 == 0 && !silent {
-            // Calculate log-like cost for all parameters w
-            // logL(w) = ∑ (yi * log(hi) + (1 − yi) * log(1 − hi))
-            let error: f64 = (0..x_len)
-                .map(|i| {
-                    let h_i = hypotheses.get(i).unwrap();
-                    let y_i = y[i] as f64;
-                    y_i * h_i.log2() + (1.0 - y_i) * (1.0 - h_i).log2()
-                })
-                .sum::<f64>()
-                / x_len as f64;
+            let y1: Vec<f64> = data.row_iter().map(|x| sigmoid(weights.dot(&x))).collect();
+            let error: f64 = logit(&y, &y1);
             println!("Epoch <{}: Current Errors {}", i, error);
         }
 
-        let errors: Vec<f64> = (0..x_len)
-            .map(|i| hypotheses.get(i).unwrap() - (y[i] as f64))
-            .collect();
+        let n_batches = data.nrows() / batch_size;
+        for _ in 0..(n_batches) {
+            let j = rng.gen_range(0..n_batches);
+            let remaining = data.nrows() - (j * batch_size);
+            let current_batch_size = if remaining < batch_size {
+                remaining
+            } else {
+                batch_size
+            };
+            let batch_data = data.rows(j * batch_size, current_batch_size);
+            let h = batch_data
+                .row_iter()
+                .map(|x| sigmoid(weights.dot(&x)))
+                .collect::<Vec<f64>>();
+            let y1 = DMatrix::from_vec(current_batch_size, 1, h);
+            let errors = y1 - &target.rows(j * batch_size, current_batch_size);
+            let weight_updates: Vec<f64> = (0..n_features)
+                .map(|i| {
+                    let x_i = batch_data.column(i);
+                    learning_rate * x_i.dot(&errors)
+                })
+                .collect();
 
-        let err = DVector::from_vec(errors);
-
-        let weight_updates: Vec<f64> = (0..n_features)
-            .map(|i| {
-                let x_i = data.column(i);
-                learning_rate * x_i.dot(&err)
-            })
-            .collect();
-
-
-        // Update weights
-        weights = weights - DMatrix::from_vec(1, n_features, weight_updates);
+            // Update weights
+            weights = weights - DMatrix::from_vec(1, n_features, weight_updates);
+        }
     }
     let res = LogisticRegressionResult {
         weights,
@@ -94,7 +96,7 @@ pub unsafe extern "C" fn logistic_regression_predict_y(
 pub unsafe extern "C" fn logistic_regression_confusion_matrix(
     res: *const LogisticRegressionResult,
     x_ptr: *const f64,
-    y_ptr: *const u8,
+    y_ptr: *const f64,
     x_len: usize,
     y_len: usize,
     matrix_ptr: *mut f64,
@@ -115,12 +117,12 @@ pub unsafe extern "C" fn logistic_regression_confusion_matrix(
             1
         };
         // True Positive, False Negative, False Positive, True Negative
-        match (guess, target) {
+        match (guess, target as u8) {
             (0, 0) => res[3] += 1.0,
             (0, 1) => res[1] += 1.0,
             (1, 0) => res[2] += 1.0,
             (1, 1) => res[0] += 1.0,
-            (_, _) => ()
+            (_, _) => (),
         }
     }
 }

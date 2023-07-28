@@ -9,6 +9,7 @@ export const logistic_regression_sym = {
         "f64",
         "usize",
         "usize",
+        "usize",
       ],
       result: "pointer",
     } as const,

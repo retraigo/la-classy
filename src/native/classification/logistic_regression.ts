@@ -7,6 +7,7 @@ interface LogisticRegressorConfig {
   learningRate?: number;
   silent?: boolean;
   epochs?: number;
+  batchSize?: number;
 }
 /**
  * Logistic Regression
@@ -16,11 +17,13 @@ export class LogisticRegressor {
   epochs: number;
   silent: boolean;
   learningRate: number;
-  constructor({ epochs, silent, learningRate }: LogisticRegressorConfig) {
+  batchSize: number;
+  constructor({ epochs, silent, learningRate, batchSize }: LogisticRegressorConfig) {
     this.#backend = null;
     this.epochs = epochs || 10;
     this.silent = silent || false;
     this.learningRate = learningRate || 0.001;
+    this.batchSize = batchSize || 1;
   }
   confusionMatrix(
     x: Matrix<Float32Array> | Matrix<Float64Array>,
@@ -35,7 +38,8 @@ export class LogisticRegressor {
 
     const dx = new Float64Array(x.nRows * x.nCols);
     dx.set(x.data)
-    const dy = Uint8Array.from(y);
+    const dy = Float64Array.from(y);
+    const ddy = new Uint8Array(dy.buffer)
     const ddx = new Uint8Array(dx.buffer);
     const res = new Float64Array(4);
     const resPtr = new Uint8Array(res.buffer);
@@ -44,7 +48,7 @@ export class LogisticRegressor {
       logistic_regression.confusion_matrix(
         this.#backend,
         ddx,
-        dy,
+        ddy,
         x.nRows,
         y.length,
         resPtr,
@@ -78,17 +82,19 @@ export class LogisticRegressor {
 
     const dx = new Float64Array(x.nRows * x.nCols);
     dx.set(x.data)
-    const dy = Uint8Array.from(y);
+    const dy = Float64Array.from(y);
+    const ddy = new Uint8Array(dy.buffer)
     const ddx = new Uint8Array(dx.buffer);
     const classes = useUnique(y);
     if (classes.length === 2) {
       this.#backend = logistic_regression.train(
         ddx,
-        dy,
+        ddy,
         x.nRows,
         y.length,
         x.nCols,
         this.learningRate,
+        this.batchSize,
         this.epochs,
         Number(this.silent),
       );

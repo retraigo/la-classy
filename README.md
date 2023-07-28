@@ -9,10 +9,5 @@ Supports:
 - Linear Regression (Multivariate, with SGD)
 - Logistic Regression (binary classification)
 
-ToDo:
-- K-Nearest Neighbours
-- Decision Tree Classifier
-- Support Vector Machine
-- Random Forest Classifier
-
 Check out [deno-ml](https://github.com/retraigo/deno-ml) for examples!
+Discord: [Kuro's Chaos Abyss](https://discord.gg/A69vvdK)

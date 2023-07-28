@@ -2,10 +2,10 @@
 // instead of Ordinary Least Squares
 
 extern crate nalgebra as na;
-
-use crate::common::functions::mean_squared_error;
 use na::DMatrix;
 use rand::Rng;
+
+use crate::common::functions::mean_squared_error;
 
 pub struct SgdLinearRegressionResult {
     pub weights: DMatrix<f64>,
@@ -32,8 +32,7 @@ pub unsafe extern "C" fn sgd_linear_regression(
     let x = std::slice::from_raw_parts(x_ptr, x_len * n_features);
     let y = std::slice::from_raw_parts(y_ptr, y_len);
     let inverse_n = 1.0 / y.len() as f64;
-    // let classes: HashSet<&u32> = HashSet::from_iter(y.into_iter());
-    // let n_classes = classes.len();
+
     let mut rng = rand::thread_rng();
 
     let mut intercept = 0.0;
@@ -44,6 +43,15 @@ pub unsafe extern "C" fn sgd_linear_regression(
     let data = DMatrix::from_row_slice(x_len, n_features, x);
     let target = DMatrix::from_row_slice(y_len, 1, y);
     for i in 0..epochs {
+        if i % 100 == 0 && !silent {
+            let y1: Vec<f64> = data
+                .row_iter()
+                .map(|x| weights.dot(&x) + intercept)
+                .collect();
+            // Calculate MSE
+            let error: f64 = mean_squared_error(y, y1.as_slice());
+            println!("Epoch <{}: Current Errors {}", i, error);
+        }
         let n_batches = data.nrows() / batch_size;
         for _ in 0..(n_batches) {
             let j = rng.gen_range(0..n_batches);
@@ -76,15 +84,6 @@ pub unsafe extern "C" fn sgd_linear_regression(
             weights -= DMatrix::from_vec(1, n_features, weight_updates);
 
             intercept -= learning_rate * (inverse_n * 2.0) * intercept_update;
-        }
-        if i % 100 == 0 && !silent {
-            let y1: Vec<f64> = data
-                .row_iter()
-                .map(|x| weights.dot(&x) + intercept)
-                .collect();
-            // Calculate MSE
-            let error: f64 = mean_squared_error(y, y1.as_slice());
-            println!("Epoch <{}: Current Errors {}", i, error);
         }
     }
 
