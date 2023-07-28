@@ -1,1 +1,1 @@
-export * from "https://deno.land/x/vectorizer@v0.0.7/mod.ts";
+export * from "https://deno.land/x/vectorizer@v0.0.12/mod.ts";
