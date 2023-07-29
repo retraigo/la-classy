@@ -1,12 +1,22 @@
+extern crate nalgebra as na;
+use na::DVector;
+
 pub fn sigmoid(x: f64) -> f64 {
     1.0 / (1.0 + (-x).exp())
 }
-pub fn mean_squared_error(y: &[f64], y1: &[f64]) -> f64 {
-    (0..y.len()).map(|i| (y[i] - y1[i]).powi(2)).sum::<f64>() / y.len() as f64
+
+pub fn mean_squared_error(y: &DVector<f64>, y1: &DVector<f64>) -> f64 {
+    let diff = y - y1;
+    diff.dot(&diff) / y.len() as f64
 }
-pub fn logit(y: &[f64], y1: &[f64]) -> f64 {
-    (0..y.len())
-        .map(|i| y[i] * y1[i].log2() + (1.0 - y[i]) * (1.0 - y1[i]).log2())
-        .sum::<f64>()
-        / (y.len() as f64)
+
+pub fn binary_cross_entropy(y: &DVector<f64>, y1: &DVector<f64>) -> f64 {
+    let epsilon = 1e-15;
+    y.zip_map(y1, |y_i, y1_i| {
+        // Clipping to avoid log(0)
+        let clipped_y1_i = y1_i.max(epsilon).min(1.0 - epsilon);
+        -(y_i * clipped_y1_i.ln() + (1.0 - y_i) * (1.0 - clipped_y1_i).ln())
+    })
+    .sum()
+    / y.len() as f64
 }

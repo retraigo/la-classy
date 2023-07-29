@@ -1,4 +1,5 @@
 /target
 /ignore
+/test
 /rust/target
 .vscode/

@@ -3,7 +3,7 @@ use na::DMatrix;
 use rand::Rng;
 
 use crate::common::{
-    functions::{logit, mean_squared_error, sigmoid},
+    functions::{binary_cross_entropy, mean_squared_error, sigmoid},
     types::{Convertor, LossFunction},
 };
 
@@ -39,27 +39,6 @@ pub unsafe extern "C" fn linear_gradient_descent(
     let target = DMatrix::from_row_slice(y_len, 1, y);
 
     for i in 0..epochs {
-        if i % 100 == 0 && !silent {
-            let y1: Vec<f64> = data
-                .row_iter()
-                .map(|x| {
-                    let mut res = weights.dot(&x);
-                    if fit_intercept {
-                        res = res + intercept;
-                    };
-                    match convertor {
-                        Convertor::NONE => res,
-                        Convertor::LOGIT => sigmoid(res),
-                    }
-                })
-                .collect();
-            let error: f64 = match loss {
-                LossFunction::LOGIT => logit(&y, &y1),
-                LossFunction::MSE => mean_squared_error(&y, &y1),
-            };
-            println!("Epoch <{}: Current Errors {}", i, error);
-        }
-
         let n_batches = data.nrows() / batch_size;
         for _ in 0..(n_batches) {
             let j = rng.gen_range(0..n_batches);
@@ -79,22 +58,22 @@ pub unsafe extern "C" fn linear_gradient_descent(
                         res = res + intercept;
                     };
                     match convertor {
-                        Convertor::NONE => res,
-                        Convertor::LOGIT => sigmoid(res),
+                        Convertor::None => res,
+                        Convertor::Logit => sigmoid(res),
                     }
                 })
                 .collect::<Vec<f64>>();
             let y1 = DMatrix::from_vec(current_batch_size, 1, h);
             let errors = y1 - &target.rows(j * batch_size, current_batch_size);
-        //    println!("Errors {:?}", errors.as_slice());
+            println!("Erro {:?}", errors.as_slice());
+            //    println!("Errors {:?}", errors.as_slice());
             let weight_updates: Vec<f64> = (0..n_features)
                 .map(|i| {
                     let x_i = batch_data.column(i);
                     learning_rate * x_i.dot(&errors) * inverse_batch_size
                 })
                 .collect();
-            //            println!("INTERCEPT {} WEI {:?}", intercept, weight_updates);
-
+            println!("Wei {:?}", weight_updates.as_slice());
             // Update weights
             weights = weights - DMatrix::from_vec(1, n_features, weight_updates);
 
@@ -107,5 +86,6 @@ pub unsafe extern "C" fn linear_gradient_descent(
     for i in 0..weights.ncols() {
         res_weights[i] = weights.column(i)[0];
     }
+    println!("W {:?}", res_weights);
     intercept
 }

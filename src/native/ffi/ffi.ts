@@ -36,11 +36,13 @@ const symbols = {
     parameters: [
       "buffer",
       "buffer",
-      "usize",
-      "usize",
       "buffer",
+      "usize",
+      "usize",
+      "usize",
+      "usize",
     ],
-    result: "void",
+    result: "f64",
   } as const,
 };
 

@@ -8,7 +8,7 @@ interface LogisticRegressorConfig {
   learningRate?: number;
   silent?: boolean;
   epochs?: number;
-  batchSize?: number;
+  batches?: number;
 }
 /**
  * Logistic Regression
@@ -18,15 +18,17 @@ export class LogisticRegressor {
   epochs: number;
   silent: boolean;
   learningRate: number;
-  batchSize: number;
+  batches: number;
+  intercept: number;
   constructor(
-    { epochs, silent, learningRate, batchSize }: LogisticRegressorConfig,
+    { epochs, silent, learningRate, batches }: LogisticRegressorConfig,
   ) {
     this.weights = null;
     this.epochs = epochs || 10;
     this.silent = silent || false;
     this.learningRate = learningRate || 0.001;
-    this.batchSize = batchSize || 1;
+    this.batches = batches || 1;
+    this.intercept = 0;
   }
   /** Output a confusion matrix */
   confusionMatrix(
@@ -60,12 +62,14 @@ export class LogisticRegressor {
   }
   /** Predict the class of an array of features */
   predict(x: ArrayLike<number>): number {
+    return sigmoid(this.probs(x)) > 0.5 ? 1 : 0;
+  }
+  probs(x: ArrayLike<number>): number {
     if (this.weights === null) throw new Error("Model not trained yet.");
     const dx = new Float64Array(x.length);
     dx.set(x, 0);
     const xMatrix = new Matrix(dx, [1, x.length]);
-    const res = xMatrix.dot(this.weights);
-    return sigmoid(res) > 0.5 ? 1 : 0;
+    return xMatrix.dot(this.weights) + this.intercept;
   }
   /** Train the regressor and compute weights */
   train(x: Matrix<Float32Array> | Matrix<Float64Array>, y: ArrayLike<number>) {
@@ -82,7 +86,7 @@ export class LogisticRegressor {
     const dy = Float64Array.from(y);
     const classes = useUnique(y);
     if (classes.length === 2) {
-      linear.gradientDescent(
+      this.intercept = linear.gradientDescent(
         new Uint8Array(this.weights.data.buffer),
         new Uint8Array(dx.buffer),
         new Uint8Array(dy.buffer),
@@ -93,7 +97,7 @@ export class LogisticRegressor {
         1,
         0,
         this.learningRate,
-        this.batchSize,
+        this.batches,
         this.epochs,
         Number(this.silent),
       );
@@ -102,6 +106,5 @@ export class LogisticRegressor {
     } else {
       throw new Error("Too few classes.");
     }
-    
   }
 }
