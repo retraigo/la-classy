@@ -1,5 +1,5 @@
-import { Matrix } from "../../helpers/vectorizer.ts";
-import { sgd_linear_regression } from "../ffi/ffi.ts";
+import { Matrix } from "../../helpers.ts";
+import { linear } from "../ffi/ffi.ts";
 
 interface SgdLinearRegressorConfig {
   learningRate?: number;
@@ -8,54 +8,58 @@ interface SgdLinearRegressorConfig {
   batchSize?: number;
 }
 /**
- * Linear Regression using Gradient Descent
+ * Logistic Regression
  */
 export class SgdLinearRegressor {
-  #backend: null | Deno.PointerValue;
+  weights: Matrix<Float64Array> | null;
   epochs: number;
   silent: boolean;
   learningRate: number;
   batchSize: number;
-  constructor({ epochs, silent, learningRate, batchSize }: SgdLinearRegressorConfig) {
-    this.#backend = null;
+  intercept: number;
+  constructor(
+    { epochs, silent, learningRate, batchSize }: SgdLinearRegressorConfig,
+  ) {
+    this.weights = null;
     this.epochs = epochs || 10;
     this.silent = silent || false;
     this.learningRate = learningRate || 0.001;
-    this.batchSize = batchSize || -1
-  }
-  destroy() {
-    sgd_linear_regression.free_res(this.#backend);
-    this.#backend = null;
+    this.batchSize = batchSize || -1;
+    this.intercept = 0;
   }
   /** Predict the class of an array of features */
   predict(x: ArrayLike<number>): number {
-    if (this.#backend === null) throw new Error("Model not trained yet.");
+    if (this.weights === null) throw new Error("Model not trained yet.");
     const dx = new Float64Array(x.length);
     dx.set(x, 0);
-    return sgd_linear_regression.predict(this.#backend, dx);
+    const xMatrix = new Matrix(dx, [1, x.length]);
+    return xMatrix.dot(this.weights) + this.intercept;
   }
-  /** Train the regressor */
-  train(x: Matrix<Float64Array> | Matrix<Float32Array>, y: ArrayLike<number>) {
-    if (this.#backend !== null) throw new Error("Model already trained.");
+  /** Train the regressor and compute weights */
+  train(x: Matrix<Float32Array> | Matrix<Float64Array>, y: ArrayLike<number>) {
+    if (this.weights !== null) throw new Error("Model already trained.");
     if (!x.nRows || !y.length) {
       throw new Error(
         `Arrays must not be empty. Received size (${x.nRows}, ${y.length}).`,
       );
     }
+    this.weights = new Matrix(Float64Array, [1, x.nCols]);
 
     const dx = new Float64Array(x.nRows * x.nCols);
-    dx.set(x.data)
+    dx.set(x.data);
     const dy = Float64Array.from(y);
-    const ddx = new Uint8Array(dx.buffer);
-    const ddy = new Uint8Array(dy.buffer)
-    this.#backend = sgd_linear_regression.train(
-      ddx,
-      ddy,
+    this.intercept = linear.gradientDescent(
+      new Uint8Array(this.weights.data.buffer),
+      new Uint8Array(dx.buffer),
+      new Uint8Array(dy.buffer),
       x.nRows,
       y.length,
       x.nCols,
+      2,
+      0,
+      1,
       this.learningRate,
-      this.batchSize === -1 ? ~~(x.nRows / 10) : this.batchSize,
+      this.batchSize === -1 ? x.nRows / 4 : this.batchSize,
       this.epochs,
       Number(this.silent),
     );

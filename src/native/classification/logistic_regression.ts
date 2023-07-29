@@ -1,7 +1,8 @@
 import { useUnique } from "../../../deps.ts";
 import { Matrix } from "../../helpers.ts";
+import { sigmoid } from "../../helpers/functions.ts";
 import { ConfusionMatrix } from "../../helpers/metrics.ts";
-import { logistic_regression } from "../ffi/ffi.ts";
+import { linear } from "../ffi/ffi.ts";
 
 interface LogisticRegressorConfig {
   learningRate?: number;
@@ -13,46 +14,43 @@ interface LogisticRegressorConfig {
  * Logistic Regression
  */
 export class LogisticRegressor {
-  #backend: null | Deno.PointerValue;
+  weights: Matrix<Float64Array> | null;
   epochs: number;
   silent: boolean;
   learningRate: number;
   batchSize: number;
-  constructor({ epochs, silent, learningRate, batchSize }: LogisticRegressorConfig) {
-    this.#backend = null;
+  constructor(
+    { epochs, silent, learningRate, batchSize }: LogisticRegressorConfig,
+  ) {
+    this.weights = null;
     this.epochs = epochs || 10;
     this.silent = silent || false;
     this.learningRate = learningRate || 0.001;
     this.batchSize = batchSize || 1;
   }
+  /** Output a confusion matrix */
   confusionMatrix(
     x: Matrix<Float32Array> | Matrix<Float64Array>,
     y: ArrayLike<number>,
   ): ConfusionMatrix {
-    if (this.#backend == null) throw new Error("Model not trained.");
+    if (this.weights == null) throw new Error("Model not trained.");
     if (!x.nRows || !y.length) {
       throw new Error(
         `Arrays must not be empty. Received size (${x.nRows}, ${y.length}).`,
       );
     }
-
-    const dx = new Float64Array(x.nRows * x.nCols);
-    dx.set(x.data)
-    const dy = Float64Array.from(y);
-    const ddy = new Uint8Array(dy.buffer)
-    const ddx = new Uint8Array(dx.buffer);
-    const res = new Float64Array(4);
-    const resPtr = new Uint8Array(res.buffer);
+    const res = new Uint32Array(4);
     const classes = useUnique(y);
     if (classes.length === 2) {
-      logistic_regression.confusion_matrix(
-        this.#backend,
-        ddx,
-        ddy,
-        x.nRows,
-        y.length,
-        resPtr,
-      );
+      let i = 0;
+      while (i < x.length) {
+        const yi = this.predict(x.row(i));
+        if (yi === 1 && y[i] === 1) res[0] += 1;
+        else if (yi === 0 && y[i] === 1) res[1] += 1;
+        else if (yi === 1 && y[i] === 0) res[2] += 1;
+        else res[3] += 1;
+        i += 1;
+      }
       return new ConfusionMatrix([res[0], res[1], res[2], res[3]]);
     } else if (classes.length > 2) {
       throw new Error("Cannot classify more than two classes yet.");
@@ -60,39 +58,40 @@ export class LogisticRegressor {
       throw new Error("Too few classes.");
     }
   }
-  destroy() {
-    logistic_regression.free_res(this.#backend);
-    this.#backend = null;
-  }
   /** Predict the class of an array of features */
   predict(x: ArrayLike<number>): number {
-    if (this.#backend === null) throw new Error("Model not trained yet.");
+    if (this.weights === null) throw new Error("Model not trained yet.");
     const dx = new Float64Array(x.length);
     dx.set(x, 0);
-    return logistic_regression.predict(this.#backend, dx) > 0.5 ? 1 : 0;
+    const xMatrix = new Matrix(dx, [1, x.length]);
+    const res = xMatrix.dot(this.weights);
+    return sigmoid(res) > 0.5 ? 1 : 0;
   }
-  /** Train the regressor */
+  /** Train the regressor and compute weights */
   train(x: Matrix<Float32Array> | Matrix<Float64Array>, y: ArrayLike<number>) {
-    if (this.#backend !== null) throw new Error("Model already trained.");
+    if (this.weights !== null) throw new Error("Model already trained.");
     if (!x.nRows || !y.length) {
       throw new Error(
         `Arrays must not be empty. Received size (${x.nRows}, ${y.length}).`,
       );
     }
+    this.weights = new Matrix(Float64Array, [1, x.nCols]);
 
     const dx = new Float64Array(x.nRows * x.nCols);
-    dx.set(x.data)
+    dx.set(x.data);
     const dy = Float64Array.from(y);
-    const ddy = new Uint8Array(dy.buffer)
-    const ddx = new Uint8Array(dx.buffer);
     const classes = useUnique(y);
     if (classes.length === 2) {
-      this.#backend = logistic_regression.train(
-        ddx,
-        ddy,
+      linear.gradientDescent(
+        new Uint8Array(this.weights.data.buffer),
+        new Uint8Array(dx.buffer),
+        new Uint8Array(dy.buffer),
         x.nRows,
         y.length,
         x.nCols,
+        1,
+        1,
+        0,
         this.learningRate,
         this.batchSize,
         this.epochs,
@@ -103,5 +102,6 @@ export class LogisticRegressor {
     } else {
       throw new Error("Too few classes.");
     }
+    
   }
 }

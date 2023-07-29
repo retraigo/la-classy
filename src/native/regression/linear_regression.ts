@@ -1,4 +1,4 @@
-import { linear_regression } from "../ffi/ffi.ts";
+import { linear } from "../ffi/ffi.ts";
 export class LinearRegressor {
   slope: number;
   intercept: number;
@@ -22,17 +22,16 @@ export class LinearRegressor {
     }
     const dx = Float64Array.from(x);
     const dy = Float64Array.from(y);
-    const ddx = new Uint8Array(dx.buffer);
-    const ddy = new Uint8Array(dy.buffer);
-    const linregress = linear_regression.train(
-      ddx,
-      ddy,
+    const res = new Float64Array(3);
+    linear.ordinaryLeastSquares(
+      new Uint8Array(dx.buffer),
+      new Uint8Array(dy.buffer),
       x.length,
       y.length,
+      new Uint8Array(res.buffer),
     );
-    this.r2 = linear_regression.get_r2(linregress);
-    this.slope = linear_regression.get_slope(linregress);
-    this.intercept = linear_regression.get_intercept(linregress);
-    linear_regression.free_res(linregress);
+    this.r2 = res[2];
+    this.slope = res[0];
+    this.intercept = res[1];
   }
 }
