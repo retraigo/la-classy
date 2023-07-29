@@ -109,7 +109,6 @@ export class SoftmaxRegressor {
         this.classes[i] = { class: classes[i], reg };
         i += 1;
       }
-      console.log(`Classes: `, this.classes)
     } else {
       throw new Error("Too few classes.");
     }
