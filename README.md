@@ -5,9 +5,9 @@
 WIP Regression and Classification ML library for Deno.
 
 Supports:
-- Linear Regression (1D, OLS)
-- Linear Regression (Multivariate, with SGD)
+- Linear Regression
 - Logistic Regression (binary classification)
+- Optimizers for linear models (Adam, SGD, Minibatch SGD)
 
 Check out [deno-ml](https://github.com/retraigo/deno-ml) for examples!
 Discord: [Kuro's Chaos Abyss](https://discord.gg/A69vvdK)
