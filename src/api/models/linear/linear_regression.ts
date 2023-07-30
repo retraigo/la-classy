@@ -1,28 +1,42 @@
-import { Matrix } from "../../helpers.ts";
-import { linear } from "../ffi/ffi.ts";
+import { Matrix } from "../../../helpers.ts";
+import { linear } from "../../ffi/ffi.ts";
+import { LossFunction, Model, Optimizer } from "../../types.ts";
 
-type LinearRegressionSolver = "ols" | "sgd";
+type LinearRegressionSolver = "ols" | "gd";
 
 interface LinearRegressorConfig {
+  /** Learning rate if solver is set to "gd". Set it to a small value. */
   learningRate?: number;
+  /** Whether to output logs while training */
   silent?: boolean;
+  /** Number of epochs to train for if solver is set to "gd" */
   epochs?: number;
+  /** Number of batches if optimizer is set to MinibatchSGD */
   batches?: number;
+  /** Optimizer if case solver is set to "gd" */
+  optimizer?: Optimizer;
+  /**
+   * How to fit the model
+   * ols: Ordinary Least Squares
+   * gd: Gradient Descent
+   */
   solver?: LinearRegressionSolver;
 }
 /**
  * Logistic Regression
  */
-export class LinearRegressor {
+export class LinearRegressor implements LinearRegressorConfig {
   weights: Matrix<Float64Array> | null;
   epochs: number;
   silent: boolean;
   learningRate: number;
   batches: number;
   intercept: number;
+  optimizer: Optimizer;
   solver: LinearRegressionSolver;
   constructor(
-    { epochs, silent, learningRate, batches, solver }: LinearRegressorConfig,
+    { epochs, silent, learningRate, batches, solver, optimizer }:
+      LinearRegressorConfig = {},
   ) {
     this.weights = null;
     this.epochs = epochs || 10;
@@ -30,6 +44,7 @@ export class LinearRegressor {
     this.learningRate = learningRate || 0.001;
     this.batches = batches || 1;
     this.intercept = 0;
+    this.optimizer = optimizer || Optimizer.SGD;
     this.solver = solver || "ols";
   }
   /** Predict the class of an array of features */
@@ -70,8 +85,10 @@ export class LinearRegressor {
         x.nRows,
         y.length,
         x.nCols,
-        2,
-        0,
+        LossFunction.MSE, // Use MSE as loss function
+        Model.None, // Use no special model
+        this.optimizer,
+        new Float64Array([0.99, 0.999, 1e-15]), // Pass buffer for adam options
         1,
         this.learningRate,
         this.batches,

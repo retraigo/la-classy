@@ -14,7 +14,7 @@ const options: FetchOptions = {
 };
 
 const symbols = {
-  linear_gradient_descent: {
+  gradient_descent: {
     parameters: [
       "buffer",
       "buffer",
@@ -24,6 +24,8 @@ const symbols = {
       "usize",
       "usize",
       "usize",
+      "usize",
+      "buffer",
       "usize",
       "f64",
       "usize",
@@ -54,6 +56,6 @@ const classy: Deno.DynamicLibrary<typeof symbols> = await dlopen(
 const cs = classy.symbols;
 
 export const linear = {
-  gradientDescent: cs.linear_gradient_descent,
+  gradientDescent: cs.gradient_descent,
   ordinaryLeastSquares: cs.ordinary_least_squares,
 };

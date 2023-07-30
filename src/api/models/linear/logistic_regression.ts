@@ -1,33 +1,40 @@
-import { useUnique } from "../../../deps.ts";
-import { Matrix } from "../../helpers.ts";
-import { sigmoid } from "../../helpers/functions.ts";
-import { ConfusionMatrix } from "../../helpers/metrics.ts";
-import { linear } from "../ffi/ffi.ts";
+import { useUnique } from "../../../../deps.ts";
+import { ConfusionMatrix, Matrix, sigmoid } from "../../../helpers.ts";
+import { linear } from "../../ffi/ffi.ts";
+import { LossFunction, Model, Optimizer } from "../../types.ts";
 
 interface LogisticRegressorConfig {
+  /** Learning rate. Set it to a small value */
   learningRate?: number;
+  /** Whether to output logs while training */
   silent?: boolean;
+  /** Number of epochs to train for */
   epochs?: number;
+  /** Optimizer */
+  optimizer?: Optimizer;
+  /** Number of minibatches if optimizer is "MinibatchSGD" */
   batches?: number;
 }
 /**
  * Logistic Regression
  */
-export class LogisticRegressor {
+export class LogisticRegressor implements LogisticRegressorConfig {
   weights: Matrix<Float64Array> | null;
   epochs: number;
   silent: boolean;
   learningRate: number;
   batches: number;
+  optimizer: Optimizer;
   intercept: number;
   constructor(
-    { epochs, silent, learningRate, batches }: LogisticRegressorConfig,
+    { epochs, silent, learningRate, batches, optimizer }: LogisticRegressorConfig = {},
   ) {
     this.weights = null;
     this.epochs = epochs || 10;
     this.silent = silent || false;
     this.learningRate = learningRate || 0.001;
     this.batches = batches || 1;
+    this.optimizer = optimizer || Optimizer.SGD;
     this.intercept = 0;
   }
   /** Output a confusion matrix */
@@ -93,8 +100,10 @@ export class LogisticRegressor {
         x.nRows,
         y.length,
         x.nCols,
-        1,
-        1,
+        LossFunction.BinCrossEntropy,
+        Model.Logit,
+        this.optimizer,
+        new Float64Array([0.9, 0.999, 1e-15]),
         0,
         this.learningRate,
         this.batches,

@@ -18,5 +18,10 @@ pub fn binary_cross_entropy(y: &DVector<f64>, y1: &DVector<f64>) -> f64 {
         -(y_i * clipped_y1_i.ln() + (1.0 - y_i) * (1.0 - clipped_y1_i).ln())
     })
     .sum()
-    / y.len() as f64
+        / y.len() as f64
+}
+pub fn cross_entropy(y: &DVector<f64>, y1: &DVector<f64>) -> f64 {
+    let epsilon = 1e-15;
+    let clipped_y1 = y1.map(|x| x.max(epsilon).min(1.0 - epsilon));
+    -y.component_mul(&clipped_y1.map(|x| x.ln())).sum()
 }
