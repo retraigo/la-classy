@@ -1,5 +1,8 @@
 extern crate nalgebra as na;
-use crate::common::types::{LossFunction, Model, Optimizer, OptimizerFFI};
+use crate::common::{
+    scheduler::{LearningRateScheduler, LearningRateSchedulerFFI},
+    types::{LossFunction, Model, Optimizer, OptimizerFFI},
+};
 use na::{DMatrix, DVector};
 
 use crate::optimizer::optimize::optimize;
@@ -9,26 +12,27 @@ pub unsafe extern "C" fn gradient_descent(
     w_ptr: *mut f64,
     x_ptr: *const f64,
     y_ptr: *const f64,
-    x_len: usize,
-    y_len: usize,
+    n_samples: usize,
     n_features: usize,
     loss: LossFunction,
     model: Model,
+    c: f64,
     optimizer: OptimizerFFI,
-    adam_options: *const f64,
+    optimizer_options: *const f64,
+    scheduler: LearningRateSchedulerFFI,
+    scheduler_options: *const f64,
     fit_intercept: bool,
     learning_rate: f64,
-    n_batches: usize,
     epochs: usize,
     silent: bool,
 ) -> f64 {
     println!("EPOCHS {}", epochs);
-    let x = std::slice::from_raw_parts(x_ptr, x_len * n_features);
-    let y: &[f64] = std::slice::from_raw_parts(y_ptr, y_len);
+    let x = std::slice::from_raw_parts(x_ptr, n_samples * n_features);
+    let y: &[f64] = std::slice::from_raw_parts(y_ptr, n_samples);
 
     let weights: DVector<f64> = DVector::from_element(n_features, 1.0);
 
-    let data = DMatrix::from_row_slice(x_len, n_features, x);
+    let data = DMatrix::from_row_slice(n_samples, n_features, x);
     let target = DVector::from_column_slice(y);
 
     let (weights, intercept) = optimize(
@@ -37,23 +41,51 @@ pub unsafe extern "C" fn gradient_descent(
         &weights,
         loss,
         model,
+        c,
         match optimizer {
             OptimizerFFI::Adam => {
-                let adam_opt = std::slice::from_raw_parts(adam_options, 3);
+                let optimizer_opt = std::slice::from_raw_parts(optimizer_options, 3);
                 Optimizer::Adam {
                     learning_rate,
-                    beta1: adam_opt[0],
-                    beta2: adam_opt[1],
-                    epsilon: adam_opt[2],
+                    beta1: optimizer_opt[0],
+                    beta2: optimizer_opt[1],
+                    epsilon: optimizer_opt[2],
                     t: 1,
                 }
             }
-            OptimizerFFI::MinibatchSGD => Optimizer::MinibatchSGD {
-                learning_rate,
-                n_batches,
-            },
+            OptimizerFFI::MinibatchSGD => {
+                let optimizer_opt = std::slice::from_raw_parts(optimizer_options, 1);
+                Optimizer::MinibatchSGD {
+                    learning_rate,
+                    n_batches: optimizer_opt[0] as usize,
+                }
+            }
             OptimizerFFI::SGD => Optimizer::SGD { learning_rate },
             OptimizerFFI::GD => Optimizer::GD { learning_rate },
+        },
+        match scheduler {
+            LearningRateSchedulerFFI::None => LearningRateScheduler::None,
+            LearningRateSchedulerFFI::DecayScheduler => {
+                let scheduler_opt = std::slice::from_raw_parts(scheduler_options, 1);
+                LearningRateScheduler::DecayScheduler {
+                    rate: scheduler_opt[0],
+                }
+            }
+            LearningRateSchedulerFFI::AnnealingScheduler => {
+                let scheduler_opt = std::slice::from_raw_parts(scheduler_options, 2);
+                LearningRateScheduler::AnnealingScheduler {
+                    rate: scheduler_opt[0],
+                    step_size: scheduler_opt[1] as usize,
+                }
+            }
+            LearningRateSchedulerFFI::OneCycleScheduler => {
+                let scheduler_opt = std::slice::from_raw_parts(scheduler_options, 3);
+                LearningRateScheduler::OneCycleScheduler {
+                    initial_lr: scheduler_opt[0],
+                    max_lr: scheduler_opt[1],
+                    cycle_steps: scheduler_opt[2] as usize,
+                }
+            }
         },
         fit_intercept,
         epochs,

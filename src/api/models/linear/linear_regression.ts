@@ -1,50 +1,36 @@
 import { Matrix } from "../../../helpers.ts";
 import { linear } from "../../ffi/ffi.ts";
-import { LossFunction, Model, Optimizer } from "../../types.ts";
+import {
+  LearningRateScheduler,
+  LossFunction,
+  Model,
+  Optimizer,
+} from "../../types.ts";
+import { LinearModelConfig } from "./base.ts";
+import { LinearModel } from "./base.ts";
 
 type LinearRegressionSolver = "ols" | "gd";
 
-interface LinearRegressorConfig {
-  /** Learning rate if solver is set to "gd". Set it to a small value. */
-  learningRate?: number;
-  /** Whether to output logs while training */
-  silent?: boolean;
-  /** Number of epochs to train for if solver is set to "gd" */
-  epochs?: number;
-  /** Number of batches if optimizer is set to MinibatchSGD */
-  batches?: number;
-  /** Optimizer if case solver is set to "gd" */
-  optimizer?: Optimizer;
+type LinearRegressorConfig = LinearModelConfig & {
   /**
    * How to fit the model
    * ols: Ordinary Least Squares
    * gd: Gradient Descent
    */
-  solver?: LinearRegressionSolver;
-}
+  solver: LinearRegressionSolver;
+};
 /**
  * Logistic Regression
  */
-export class LinearRegressor implements LinearRegressorConfig {
-  weights: Matrix<Float64Array> | null;
-  epochs: number;
-  silent: boolean;
-  learningRate: number;
-  batches: number;
-  intercept: number;
-  optimizer: Optimizer;
+export class LinearRegressor extends LinearModel
+  implements LinearRegressorConfig {
   solver: LinearRegressionSolver;
   constructor(
-    { epochs, silent, learningRate, batches, solver, optimizer }:
-      LinearRegressorConfig = {},
+    { epochs, silent, learningRate, solver, optimizer, scheduler, c }: Partial<
+      LinearRegressorConfig
+    > = {},
   ) {
-    this.weights = null;
-    this.epochs = epochs || 10;
-    this.silent = silent || false;
-    this.learningRate = learningRate || 0.001;
-    this.batches = batches || 1;
-    this.intercept = 0;
-    this.optimizer = optimizer || Optimizer.SGD;
+    super({ epochs, silent, learningRate, optimizer, scheduler, c });
     this.solver = solver || "ols";
   }
   /** Predict the class of an array of features */
@@ -68,6 +54,43 @@ export class LinearRegressor implements LinearRegressorConfig {
     const dx = new Float64Array(x.nRows * x.nCols);
     dx.set(x.data);
     const dy = Float64Array.from(y);
+    const optimizerOptions = new Float64Array(
+      this.optimizer.type === Optimizer.Adam
+        ? 3
+        : this.optimizer.type === Optimizer.MinibatchSGD
+        ? 1
+        : 0,
+    );
+    if (this.optimizer.type === Optimizer.Adam) {
+      optimizerOptions[0] = this.optimizer.config.beta1 || 0.9;
+      optimizerOptions[1] = this.optimizer.config.beta2 || 0.99;
+      optimizerOptions[2] = this.optimizer.config.epsilon || 1e-15;
+    } else if (this.optimizer.type === Optimizer.MinibatchSGD) {
+      optimizerOptions[0] = this.optimizer.config.n_batches;
+    }
+
+    const schedulerOptions = new Float64Array(
+      this.scheduler.type === LearningRateScheduler.OneCycleScheduler
+        ? 3
+        : this.scheduler.type === LearningRateScheduler.AnnealingScheduler
+        ? 2
+        : this.scheduler.type === LearningRateScheduler.DecayScheduler
+        ? 1
+        : 0,
+    );
+    if (this.scheduler.type === LearningRateScheduler.OneCycleScheduler) {
+      schedulerOptions[0] = this.scheduler.config.initial_lr ||
+        this.learningRate;
+      schedulerOptions[1] = this.scheduler.config.max_lr || 0.1;
+      schedulerOptions[2] = this.scheduler.config.cycle_steps || 100;
+    } else if (
+      this.scheduler.type === LearningRateScheduler.AnnealingScheduler
+    ) {
+      schedulerOptions[0] = this.scheduler.config.rate;
+      schedulerOptions[1] = this.scheduler.config.step_size;
+    } else if (this.scheduler.type === LearningRateScheduler.DecayScheduler) {
+      schedulerOptions[0] = this.scheduler.config.rate;
+    }
     this.intercept = this.solver === "ols"
       ? linear.ordinaryLeastSquares(
         new Uint8Array(this.weights.data.buffer),
@@ -83,15 +106,16 @@ export class LinearRegressor implements LinearRegressorConfig {
         new Uint8Array(dx.buffer),
         new Uint8Array(dy.buffer),
         x.nRows,
-        y.length,
         x.nCols,
-        LossFunction.MSE, // Use MSE as loss function
-        Model.None, // Use no special model
-        this.optimizer,
-        new Float64Array([0.99, 0.999, 1e-15]), // Pass buffer for adam options
+        LossFunction.MSE,
+        Model.None,
+        this.c,
+        this.optimizer.type,
+        new Uint8Array(optimizerOptions.buffer),
+        this.scheduler.type,
+        new Uint8Array(schedulerOptions.buffer),
         1,
         this.learningRate,
-        this.batches,
         this.epochs,
         Number(this.silent),
       );

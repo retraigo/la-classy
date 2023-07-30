@@ -1,41 +1,19 @@
 import { useUnique } from "../../../../deps.ts";
 import { ConfusionMatrix, Matrix, sigmoid } from "../../../helpers.ts";
 import { linear } from "../../ffi/ffi.ts";
-import { LossFunction, Model, Optimizer } from "../../types.ts";
+import { LearningRateScheduler, LossFunction, Model, Optimizer } from "../../types.ts";
+import { LinearModel, LinearModelConfig } from "./base.ts";
 
-interface LogisticRegressorConfig {
-  /** Learning rate. Set it to a small value */
-  learningRate?: number;
-  /** Whether to output logs while training */
-  silent?: boolean;
-  /** Number of epochs to train for */
-  epochs?: number;
-  /** Optimizer */
-  optimizer?: Optimizer;
-  /** Number of minibatches if optimizer is "MinibatchSGD" */
-  batches?: number;
-}
 /**
  * Logistic Regression
  */
-export class LogisticRegressor implements LogisticRegressorConfig {
-  weights: Matrix<Float64Array> | null;
-  epochs: number;
-  silent: boolean;
-  learningRate: number;
-  batches: number;
-  optimizer: Optimizer;
-  intercept: number;
+export class LogisticRegressor extends LinearModel {
   constructor(
-    { epochs, silent, learningRate, batches, optimizer }: LogisticRegressorConfig = {},
+    { epochs, silent, learningRate, optimizer, scheduler, c }: Partial<
+      LinearModelConfig
+    > = {},
   ) {
-    this.weights = null;
-    this.epochs = epochs || 10;
-    this.silent = silent || false;
-    this.learningRate = learningRate || 0.001;
-    this.batches = batches || 1;
-    this.optimizer = optimizer || Optimizer.SGD;
-    this.intercept = 0;
+    super({ epochs, silent, learningRate, optimizer, scheduler, c });
   }
   /** Output a confusion matrix */
   confusionMatrix(
@@ -93,20 +71,58 @@ export class LogisticRegressor implements LogisticRegressorConfig {
     const dy = Float64Array.from(y);
     const classes = useUnique(y);
     if (classes.length === 2) {
+      const optimizerOptions = new Float64Array(
+        this.optimizer.type === Optimizer.Adam
+          ? 3
+          : this.optimizer.type === Optimizer.MinibatchSGD
+          ? 1
+          : 0,
+      );
+      if (this.optimizer.type === Optimizer.Adam) {
+        optimizerOptions[0] = this.optimizer.config.beta1 || 0.9;
+        optimizerOptions[1] = this.optimizer.config.beta2 || 0.99;
+        optimizerOptions[2] = this.optimizer.config.epsilon || 1e-15;
+      } else if (this.optimizer.type === Optimizer.MinibatchSGD) {
+        optimizerOptions[0] = this.optimizer.config.n_batches;
+      }
+
+      const schedulerOptions = new Float64Array(
+        this.scheduler.type === LearningRateScheduler.OneCycleScheduler
+          ? 3
+          : this.scheduler.type === LearningRateScheduler.AnnealingScheduler
+          ? 2
+          : this.scheduler.type === LearningRateScheduler.DecayScheduler
+          ? 1
+          : 0,
+      );
+      if (this.scheduler.type === LearningRateScheduler.OneCycleScheduler) {
+        schedulerOptions[0] = this.scheduler.config.initial_lr ||
+          this.learningRate;
+        schedulerOptions[1] = this.scheduler.config.max_lr || 0.1;
+        schedulerOptions[2] = this.scheduler.config.cycle_steps || 100;
+      } else if (
+        this.scheduler.type === LearningRateScheduler.AnnealingScheduler
+      ) {
+        schedulerOptions[0] = this.scheduler.config.rate;
+        schedulerOptions[1] = this.scheduler.config.step_size;
+      } else if (this.scheduler.type === LearningRateScheduler.DecayScheduler) {
+        schedulerOptions[0] = this.scheduler.config.rate;
+      }
       this.intercept = linear.gradientDescent(
         new Uint8Array(this.weights.data.buffer),
         new Uint8Array(dx.buffer),
         new Uint8Array(dy.buffer),
         x.nRows,
-        y.length,
         x.nCols,
         LossFunction.BinCrossEntropy,
         Model.Logit,
-        this.optimizer,
-        new Float64Array([0.9, 0.999, 1e-15]),
-        0,
+        this.c,
+        this.optimizer.type,
+        new Uint8Array(optimizerOptions.buffer),
+        this.scheduler.type,
+        new Uint8Array(schedulerOptions.buffer),
+        1,
         this.learningRate,
-        this.batches,
         this.epochs,
         Number(this.silent),
       );

@@ -3,7 +3,7 @@ extern crate nalgebra as na;
 use na::{DMatrix, DVector};
 
 use crate::{
-    common::types::{LossFunction, Model, Optimizer},
+    common::{types::{LossFunction, Model, Optimizer}, scheduler::LearningRateScheduler},
     optimizer::{
         adam::adam_optimizer, gd::gradient_descent_optimizer,
         minibatch_sgd::minibatch_stochastic_gradient_descent_optimizer, sgd::stochastic_gradient_descent_optimizer,
@@ -16,7 +16,9 @@ pub fn optimize(
     init_weights: &DVector<f64>,
     loss: LossFunction,
     model: Model,
+    c: f64,
     optimizer: Optimizer,
+    scheduler: LearningRateScheduler,
     fit_intercept: bool,
     epochs: usize,
     silent: bool,
@@ -35,9 +37,11 @@ pub fn optimize(
             loss,
             model,
             fit_intercept,
+            c,
             epochs,
             silent,
             learning_rate,
+            scheduler,
             beta1,
             beta2,
             epsilon,
@@ -50,9 +54,11 @@ pub fn optimize(
             loss,
             model,
             fit_intercept,
+            c,
             epochs,
             silent,
             learning_rate,
+            scheduler
         ),
         Optimizer::MinibatchSGD {
             learning_rate,
@@ -64,9 +70,11 @@ pub fn optimize(
             loss,
             model,
             fit_intercept,
+            c,
             epochs,
             silent,
             learning_rate,
+            scheduler,
             n_batches,
         ),
         Optimizer::GD { learning_rate } => gradient_descent_optimizer(
@@ -76,9 +84,11 @@ pub fn optimize(
             loss,
             model,
             fit_intercept,
+            c,
             epochs,
             silent,
             learning_rate,
+            scheduler
         ),
     }
 }

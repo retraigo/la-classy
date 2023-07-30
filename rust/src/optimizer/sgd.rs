@@ -1,6 +1,7 @@
 extern crate nalgebra as na;
 use crate::common::{
     functions::{binary_cross_entropy, mean_squared_error, sigmoid},
+    scheduler::{get_learning_rate, LearningRateScheduler},
     types::{LossFunction, Model},
 };
 use na::{DMatrix, DVector};
@@ -13,14 +14,21 @@ pub fn stochastic_gradient_descent_optimizer(
     loss: LossFunction,
     model: Model,
     fit_intercept: bool,
+    c: f64,
     epochs: usize,
     silent: bool,
     learning_rate: f64,
+    scheduler: LearningRateScheduler,
 ) -> (DVector<f64>, f64) {
     let mut intercept = 0f64;
+    if fit_intercept {
+        intercept = target.mean();
+    }
     let mut weights = init_weights.clone();
     let mut rng = rand::thread_rng();
+    let mut eta = learning_rate;
     for i in 0..epochs {
+        eta = get_learning_rate(&scheduler, eta, i);
         if i % 100 == 0 && !silent {
             let mut h = data * &weights;
 
