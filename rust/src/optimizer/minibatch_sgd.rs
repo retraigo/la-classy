@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 use crate::common::{
     functions::{binary_cross_entropy, mean_squared_error, sigmoid},
-    scheduler::{LearningRateScheduler, get_learning_rate},
+    scheduler::{get_learning_rate, LearningRateScheduler},
     types::{LossFunction, Model},
 };
 use na::{DMatrix, DVector};
@@ -60,8 +60,7 @@ pub fn minibatch_stochastic_gradient_descent_optimizer(
             } else {
                 batch_size
             };
-            let inverse_batch_size = learning_rate
-                * match model {
+            let inverse_batch_size = match model {
                     Model::Logit => 1.0,
                     Model::None => 2.0,
                 }
@@ -80,14 +79,17 @@ pub fn minibatch_stochastic_gradient_descent_optimizer(
                 }),
             };
             let errors = &h - &target.rows(j * batch_size, current_batch_size);
-            let weight_updates = &batch_data.transpose() * &errors * inverse_batch_size;
+            let weights_l1 = c * &weights.map(|w| if w >= 0.0 { 1.0 } else { -1.0 });
+
+            let weight_updates = ((&batch_data.transpose() * &errors * inverse_batch_size) + weights_l1) * eta;
 
             // Update weights
             weights -= weight_updates;
 
             // Update intercept if used
             if fit_intercept {
-                intercept -= errors.sum() * inverse_batch_size;
+                let intercept_l1 = c * if intercept >= 0.0 { 1.0 } else { -1.0 };
+                intercept -= ((errors.sum() * inverse_batch_size) + intercept_l1) * eta;
             }
         }
     }

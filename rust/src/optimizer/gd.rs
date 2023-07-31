@@ -27,6 +27,11 @@ pub fn gradient_descent_optimizer(
     }
     let mut weights = init_weights.clone();
     let mut eta = learning_rate;
+    let inverse_n = match model {
+        Model::Logit => 1.0,
+        Model::None => 2.0,
+    } / data.nrows() as f64;
+    
     for i in 0..epochs {
         eta = get_learning_rate(&scheduler, eta, i);
 
@@ -51,10 +56,6 @@ pub fn gradient_descent_optimizer(
             println!("Epoch <{}: Current Errors {}", i, error);
         }
 
-        let inverse_n = match model {
-            Model::Logit => 1.0,
-            Model::None => 2.0,
-        } / data.nrows() as f64;
         let mut h = data * &weights;
 
         match model {
@@ -66,12 +67,15 @@ pub fn gradient_descent_optimizer(
         };
         let errors = h - target;
         let weight_updates = &data.transpose() * &errors * inverse_n;
+        let weights_l1 = c * &weights.map(|w| if w >= 0.0 { 1.0 } else { -1.0 });
+
         // Update weights
-        weights -= weight_updates * eta;
+        weights -= (weight_updates + weights_l1) * eta;
 
         // Update intercept if used
         if fit_intercept {
-            intercept -= errors.sum() * inverse_n * eta;
+            let intercept_l1 = c * if intercept >= 0.0 { 1.0 } else { -1.0 };
+            intercept -= ((errors.sum() * inverse_n) + intercept_l1) * eta;
         }
     }
     (weights, intercept)

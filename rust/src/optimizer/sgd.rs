@@ -64,13 +64,16 @@ pub fn stochastic_gradient_descent_optimizer(
             };
             let error = &h - target.get(j).unwrap();
             let weight_updates = current_data.transpose() * error;
-
+            let weights_l1 = c * &weights.map(|w| if w >= 0.0 { 1.0 } else { -1.0 });
+            
             // Update weights
-            weights -= weight_updates * learning_rate;
+            weights -= (weight_updates + weights_l1) * eta;
 
             // Update intercept if used
             if fit_intercept {
-                intercept -= error * learning_rate;
+                let intercept_l1 = c * if intercept >= 0.0 { 1.0 } else { -1.0 };
+                intercept -= (error + intercept_l1) * eta;
+    
             }
         }
     }
