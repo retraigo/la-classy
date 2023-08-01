@@ -1,3 +1,2 @@
-pub mod common;
-pub mod optimizer;
-pub mod solver;
+pub mod types;
+pub mod core;
