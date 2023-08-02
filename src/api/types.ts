@@ -1,21 +1,36 @@
+import type { LearningRateScheduler } from "../../deps.ts";
+
 export enum LossFunction {
-  BinCrossEntropy = 1,
-  MSE = 2,
+  BinCrossEntropy = "bincrossentropy",
+  CrossEntropy = "crossentropy",
+  MSE = "mse",
+  MAE = "mae",
 }
 
 export enum Model {
-  None = 0,
-  Logit = 1,
+  None = "none",
+  Logit = "logit",
 }
 
 // Optimizers
 
 export enum Optimizer {
-  Adam = 1,
-  SGD = 2,
-  MinibatchSGD = 3,
-  GD = 4,
+  Adam = "adam",
+  None = "none"
 }
+
+export type ModelConfig = {
+  epochs: number;
+  silent: boolean;
+  learning_rate: number;
+  fit_intercept: boolean;
+  model: Model;
+  loss: LossFunction;
+  optimizer: OptimizerConfig;
+  scheduler: LearningRateScheduler;
+  n_batches: number;
+  c: number;
+};
 
 export interface AdamOptimizerConfig {
   beta1: number;
@@ -26,28 +41,11 @@ export interface MinibatchSGDConfig {
   n_batches: number;
 }
 
-export type OptimizerConfig =
-  | { type: Optimizer.Adam; config: AdamOptimizerConfig }
-  | { type: Optimizer.SGD }
-  | { type: Optimizer.MinibatchSGD; config: MinibatchSGDConfig }
-  | { type: Optimizer.GD };
+export type OptimizerConfig = { type: Optimizer.Adam; config: AdamOptimizerConfig } | { type: Optimizer.None }
 
-// Learning Rate Schedulers
-
-export enum LearningRateScheduler {
-  None = 0,
-  DecayScheduler = 1,
-  AnnealingScheduler = 2,
-  OneCycleScheduler = 3,
+export enum Solver {
+  OLS = 0,
+  GD = 1,
+  SGD = 2,
+  Minibatch = 3,
 }
-export type LearningRateSchedulerConfig =
-  | {
-    type: LearningRateScheduler.OneCycleScheduler;
-    config: { initial_lr: number; max_lr: number; cycle_steps: number };
-  }
-  | {
-    type: LearningRateScheduler.AnnealingScheduler;
-    config: { rate: number; step_size: number };
-  }
-  | { type: LearningRateScheduler.DecayScheduler; config: { rate: number } }
-  | { type: LearningRateScheduler.None };

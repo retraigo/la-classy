@@ -4,14 +4,18 @@ use serde::{Deserialize, Serialize};
 pub struct ModelConfig {
     pub epochs: usize,
     pub silent: bool,
+    pub learning_rate: f64,
     pub fit_intercept: bool,
     pub model: Model,
     pub loss: LossFunction,
     pub optimizer: Optimizer,
+    pub scheduler: Scheduler,
+    pub n_batches: usize,
     pub c: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
 pub enum LossFunction {
     MAE,
     MSE,
@@ -20,25 +24,32 @@ pub enum LossFunction {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
 pub enum Model {
     None,
     Logit,
 }
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum Optimizer {
-    Adam(AdamOptimizerConfig),
-    SGD,
-    MinibatchSGD(MinibatchSGDOptimizerConfig),
-    GD,
+#[repr(C)]
+pub enum Solver {
+    OLS = 0,
+    GD = 1,
+    SGD = 2,
+    Minibatch = 3,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "type", content = "config")]
+#[serde(rename_all = "lowercase")]
+pub enum Optimizer {
+    None,
+    Adam(AdamOptimizerConfig),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct AdamOptimizerConfig {
     pub beta1: f64,
     pub beta2: f64,
     pub epsilon: f64,
-    pub n_batches: usize,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -47,6 +58,8 @@ pub struct MinibatchSGDOptimizerConfig {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "type", content = "config")]
+#[serde(rename_all = "lowercase")]
 pub enum Scheduler {
     None,
     ExponentialAnnealer {

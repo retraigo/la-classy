@@ -6,7 +6,7 @@ pub fn get_learning_rate(scheduler: &Scheduler, current: f64, step: usize, initi
         Scheduler::ExponentialAnnealer { rate } => current * rate.powi(step as i32),
         Scheduler::LinearAnnealer { rate } => initial_lr - rate * step as f64,
         Scheduler::DecayScheduler { rate, step_size } => {
-            initial_lr * rate.powf((step as f64) / (*step_size as f64)).max(1.0)
+            initial_lr * rate.powi((step as i32) / (*step_size as i32)).max(1.0)
         }
         Scheduler::OneCycleScheduler {
             max_lr,
