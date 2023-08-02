@@ -4,6 +4,8 @@
         "./rust/Cargo.toml",
         "./rust/Cargo.toml",
         "./rust/Cargo.toml",
+        ".\\rust\\Cargo.toml",
+        ".\\rust\\Cargo.toml",
         ".\\rust\\Cargo.toml"
     ],
     "deno.enable": true,
