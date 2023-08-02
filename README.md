@@ -2,6 +2,8 @@
 
 <h1>Classy Lala</h1>
 
+This library is veeeeeeeery unstable (like my mood swings).
+
 WIP supervised machine learning library for Deno.
 
 Supports:
