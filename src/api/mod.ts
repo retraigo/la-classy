@@ -19,7 +19,7 @@ export function solve<T extends Float32Array | Float64Array>(
 
   const conf: ModelConfig = {
     epochs: config.epochs || 1,
-    silent: config.silent || true,
+    silent: config.silent ?? true,
     learning_rate: config.learning_rate || 0.01,
     fit_intercept: config.fit_intercept || false,
     model: config.model || Model.None,
@@ -43,5 +43,5 @@ export function solve<T extends Float32Array | Float64Array>(
   );
   return config.fit_intercept
     ? [new Matrix(weights.slice(0, x.nCols), [1, x.nCols]), weights[x.nCols]]
-    : [new Matrix(weights, [1, x.nCols + 1]), 0];
+    : [new Matrix(weights, [1, x.nCols]), 0];
 }
