@@ -45,7 +45,6 @@ pub extern "C" fn solve(
     if config.fit_intercept {
         data = data.insert_column(n_features, 1.0);
     }
-    println!("SHAP {:?}", data.shape());
     let targets = DVector::from_column_slice(y);
 
     let weights = match solver {
@@ -54,7 +53,6 @@ pub extern "C" fn solve(
         Solver::GD => gradient_descent(&config, &data, &targets),
         Solver::Minibatch => minibatch_stochastic_gradient_descent(&config, &data, &targets),
     };
-    println!("Wei {:?}", weights.as_slice());
     for i in 0..weights.len() {
         weight_buffer[i] = weights[i];
     }
