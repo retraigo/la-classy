@@ -1,23 +1,46 @@
-use crate::types::Scheduler;
+pub enum Scheduler {
+    None,
+    LinearDecay {
+        // Rate of decay
+        rate: f64,
+        // Number of epochs for decay
+        step_size: usize,
+    },
+    ExponentialDecay {
+        // Rate of decay
+        rate: f64,
+        // Number of epochs for decay
+        step_size: usize,
+    },
+    OneCycle {
+        // Max allowed learning rate
+        max_rate: f64,
+        // Number of steps in one cycle
+        step_size: usize,
+    },
+}
 
-pub fn get_learning_rate(scheduler: &Scheduler, current: f64, step: usize, initial_lr: f64) -> f64 {
-    match scheduler {
-        Scheduler::None => current,
-        Scheduler::ExponentialAnnealer { rate } => current * rate.powi(step as i32),
-        Scheduler::LinearAnnealer { rate } => initial_lr - rate * step as f64,
-        Scheduler::DecayScheduler { rate, step_size } => {
-            initial_lr * rate.powi((step as i32) / (*step_size as i32)).max(1.0)
-        }
-        Scheduler::OneCycleScheduler {
-            max_lr,
-            cycle_steps,
-        } => {
-            let steps = *cycle_steps as f64;
-            let step = step % (2 * cycle_steps);
-            if step < *cycle_steps {
-                initial_lr + (max_lr - initial_lr) * (step as f64) / (steps)
-            } else {
-                max_lr - (max_lr - initial_lr) * ((step - cycle_steps) as f64) / (steps)
+impl Scheduler {
+    pub fn eta(&self, learning_rate: f64, step: usize) -> f64 {
+        match self {
+            Scheduler::None => learning_rate,
+            Scheduler::LinearDecay { rate, step_size } => {
+                learning_rate / (rate * (1 + step / step_size) as f64)
+            }
+            Scheduler::ExponentialDecay { rate, step_size } => {
+                learning_rate * rate.powi((step / step_size) as i32)
+            }
+            Scheduler::OneCycle {
+                max_rate,
+                step_size,
+            } => {
+                let steps = *step_size as f64;
+                let step = step % (2 * step_size);
+                if step < *step_size {
+                    learning_rate + (max_rate - learning_rate) * (step as f64) / (steps)
+                } else {
+                    max_rate - (max_rate - learning_rate) * ((step - step_size) as f64) / (steps)
+                }
             }
         }
     }

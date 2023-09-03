@@ -1,7 +1,7 @@
 import { dlopen, FetchOptions } from "https://deno.land/x/plug@1.0.2/mod.ts";
 
 import { CLASSY_LALA_VERSION } from "../../../version.ts";
-import { Solver } from "../types.ts";
+import symbols from "./symbols/mod.ts";
 
 const options: FetchOptions = {
   name: "classylala",
@@ -14,21 +14,6 @@ const options: FetchOptions = {
   cache: "reloadAll",
 };
 
-const symbols = {
-  solve: {
-    parameters: [
-      "buffer",
-      "buffer",
-      "buffer",
-      "usize",
-      "usize",
-      "buffer",
-      "usize",
-      "usize",
-    ],
-    result: "void",
-  } as const,
-};
 
 const classy: Deno.DynamicLibrary<typeof symbols> = await dlopen(
   options,
@@ -37,15 +22,4 @@ const classy: Deno.DynamicLibrary<typeof symbols> = await dlopen(
 
 const cs = classy.symbols;
 
-export const linear = {
-  solve: cs.solve as (
-    weights: Uint8Array,
-    data: Uint8Array,
-    targets: Uint8Array,
-    samples: number,
-    features: number,
-    config: Uint8Array,
-    configLength: number,
-    solver: Solver,
-  ) => void,
-};
+export default cs;
