@@ -37,6 +37,6 @@ jobs:
           tag_name: "release draft"
           draft: true
           files: |
-            target/release/libclassylala.so
-            target/release/libclassylala.dylib
-            target/release/classylala.dll
+            target/release/libclassy.so
+            target/release/libclassy.dylib
+            target/release/classy.dll
