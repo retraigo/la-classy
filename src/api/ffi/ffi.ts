@@ -4,7 +4,7 @@ import { CLASSY_LALA_VERSION } from "../../../version.ts";
 import symbols from "./symbols/mod.ts";
 
 const options: FetchOptions = {
-  name: "classylala",
+  name: "classy",
   url: new URL(import.meta.url).protocol !== "file:"
     ? new URL(
       `https://github.com/retraigo/classy-lala/releases/download/${CLASSY_LALA_VERSION}/`,
