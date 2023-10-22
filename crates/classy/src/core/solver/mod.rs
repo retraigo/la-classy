@@ -2,14 +2,14 @@ mod gd;
 mod minibatch;
 mod ols;
 mod sgd;
-mod sag;
+//mod sag;
 
 pub use gd::GradientDescentSolver;
 pub use minibatch::MinibatchSGDSolver;
-use nalgebra::{DMatrix, DVector};
+use ndarray::{Array2, Array1};
 pub use ols::OrdinaryLeastSquares;
 pub use sgd::SGDSolver;
-pub use sag::SAGSolver;
+//pub use sag::SAGSolver;
 
 use super::regularization::Regularization;
 
@@ -17,21 +17,21 @@ pub enum Solver {
     GD(GradientDescentSolver),
     Minibatch(MinibatchSGDSolver),
     SGD(SGDSolver),
-    SAG(SAGSolver),
+//    SAG(SAGSolver),
     OLS(OrdinaryLeastSquares),
 }
 
 impl Solver {
     pub fn solve(
         &mut self,
-        data: &DMatrix<f64>,
-        targets: &DVector<f64>,
+        data: &Array2<f64>,
+        targets: &Array1<f64>,
         epochs: usize,
         learning_rate: f64,
         n_batches: usize,
         silent: bool,
         regularizer: &Regularization,
-    ) -> DVector<f64> {
+    ) -> Array1<f64> {
         match self {
             Self::GD(solver) => solver.train(
                 data,
@@ -58,6 +58,7 @@ impl Solver {
                 silent,
                 regularizer,
             ),
+            /*
             Self::SAG(solver) => solver.train(
                 data,
                 targets,
@@ -65,7 +66,7 @@ impl Solver {
                 learning_rate,
                 silent,
                 regularizer,
-            ),
+            ),*/
             Self::OLS(solver) => solver.train(
                 data,
                 targets,

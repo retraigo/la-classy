@@ -1,29 +1,26 @@
 /**
  * Ordinary Least Squares
  */
-extern crate nalgebra as na;
-use na::{DMatrix, DVector};
+
+use ndarray::{Array2, Array1};
+use ndarray_linalg::Inverse;
 
 pub struct OrdinaryLeastSquares;
 
 impl OrdinaryLeastSquares {
-    pub fn train(&self, data: &DMatrix<f64>, targets: &DVector<f64>, silent: bool) -> DVector<f64> {
+    pub fn train(&self, data: &Array2<f64>, targets: &Array1<f64>, silent: bool) -> Array1<f64> {
         let n = targets.len();
 
-        let y: DMatrix<f64> = DMatrix::from_row_slice(targets.len(), 1, targets.data.as_slice());
-        let x_transpose = data.transpose();
+        let x_transpose = data.t();
 
         let xtx = &x_transpose * data;
-        let xty = &x_transpose * y;
+        let xty = &x_transpose.dot(targets);
 
-        let xtx_inverse = match xtx.try_inverse() {
-            Some(inv) => inv,
-            None => panic!("Unable to invert XtX"),
-        };
-        let y_mean = targets.mean();
+        let xtx_inverse= xtx.clone().inv().unwrap();
+        let y_mean = targets.mean().unwrap();
 
         // OLS Weights = (XtX)' * XtY
-        let weights: DMatrix<f64> = (xtx_inverse * xty).transpose();
+        let weights = (xtx_inverse.dot(xty)).t().to_owned();
 
         // Calculate R2 only if `silent` is set to false
         if !silent {
@@ -39,6 +36,6 @@ impl OrdinaryLeastSquares {
             let r2 = 1f64 - (sse / sst);
             println!("R2 Score: {}", r2);
         }
-        DVector::from_row_slice(weights.as_slice())
+        weights
     }
 }

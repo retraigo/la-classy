@@ -1,4 +1,4 @@
-use nalgebra::DVector;
+use ndarray::Array1;
 mod adam;
 
 pub enum OptimizerConfig {
@@ -27,15 +27,15 @@ impl Optimizer {
     }
     pub fn optimize(
         &mut self,
-        weights: &mut DVector<f64>,
-        gradient: DVector<f64>,
+        weights: &mut Array1<f64>,
+        gradient: Array1<f64>,
         learning_rate: f64,
-        regularization: DVector<f64>,
+        regularization: Array1<f64>,
     ) {
         match self {
             Self::Adam(adam) => adam.optimize(weights, gradient, learning_rate, regularization),
             Self::None => {
-                *weights -= (gradient + regularization) * learning_rate;
+                *weights = weights.clone() - (gradient + regularization) * learning_rate;
             }
         }
     }

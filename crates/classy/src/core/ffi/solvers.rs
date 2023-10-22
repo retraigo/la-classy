@@ -1,4 +1,5 @@
-use nalgebra::{DMatrix, DVector};
+use ndarray::{Array2, Array1, ArrayD, IxDyn, stack};
+use ndarray_linalg::hstack;
 
 use crate::core::{
     activation::Activation,
@@ -88,12 +89,13 @@ pub unsafe extern "C" fn solve(
         )
     };
 
-    let mut data = DMatrix::from_row_slice(n_samples, n_features, x);
+    let mut data = Array2::from_shape_vec([n_samples, n_features], Vec::from(x)).unwrap();
     if fit_intercept {
-        data = data.insert_column(0, 1.0);
+        let new_col = Array1::from_elem(n_samples, 1f64);
+        let _ = data.push_column(new_col.view());
     }
 
-    let targets = DVector::from_column_slice(y);
+    let targets = Array1::from_shape_vec(n_samples, Vec::from(y)).unwrap();
 
     let weights = (*solver).solve(
         &data,
