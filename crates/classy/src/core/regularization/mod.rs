@@ -1,4 +1,4 @@
-use ndarray::Array1;
+use nalgebra::DVector;
 
 pub struct Regularization {
     l1_strength: f64,
@@ -33,21 +33,21 @@ impl Regularization {
             }
         }
     }
-    pub fn l1_coeff(&self, x: &Array1<f64>) -> Array1<f64> {
+    pub fn l1_coeff(&self, x: &DVector<f64>) -> DVector<f64> {
         if self.l1_strength == 0.0 {
-            Array1::zeros(x.len())
+            DVector::zeros(x.len())
         } else {
             self.l1_strength * x.map(|w| w.abs())
         }
     }
-    pub fn l2_coeff(&self, x: &Array1<f64>) -> Array1<f64> {
+    pub fn l2_coeff(&self, x: &DVector<f64>) -> DVector<f64> {
         if self.l2_strength == 0.0 {
-            Array1::zeros(x.len())
+            DVector::zeros(x.len())
         } else {
             self.l2_strength * x.map(|w| w * w)
         }
     }
-    pub fn coeff(&self, x: &Array1<f64>) -> Array1<f64> {
+    pub fn coeff(&self, x: &DVector<f64>) -> DVector<f64> {
         self.l1_coeff(x) + self.l2_coeff(x)
     }
 }

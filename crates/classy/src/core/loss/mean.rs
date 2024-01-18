@@ -1,22 +1,22 @@
-use ndarray::Array1;
+use nalgebra::DVector;
 
 // Mean Absolute Error
-pub fn mae(y: &Array1<f64>, y1: &Array1<f64>) -> Array1<f64> {
+pub fn mae(y: &DVector<f64>, y1: &DVector<f64>) -> DVector<f64> {
     (y1 - y).map(|x| x.abs())
 }
 
 // First Derivate of MAE
-pub fn mae_d(y: &Array1<f64>, y1: &Array1<f64>) -> Array1<f64> {
+pub fn mae_d(y: &DVector<f64>, y1: &DVector<f64>) -> DVector<f64> {
     y1 - y
 }
 
 // Mean Squared Error
-pub fn mse(y: &Array1<f64>, y1: &Array1<f64>) -> Array1<f64> {
+pub fn mse(y: &DVector<f64>, y1: &DVector<f64>) -> DVector<f64> {
     let diff = y1 - y;
-    diff.clone() * &diff
+    diff.component_mul(&diff)
 }
 
 // First Derivate of MSE
-pub fn mse_d(y: &Array1<f64>, y1: &Array1<f64>) -> Array1<f64> {
+pub fn mse_d(y: &DVector<f64>, y1: &DVector<f64>) -> DVector<f64> {
     y1 - y
 }

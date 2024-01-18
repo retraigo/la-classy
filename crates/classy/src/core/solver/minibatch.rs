@@ -1,4 +1,4 @@
-use ndarray::{Array2, Array1, s};
+use nalgebra::{DMatrix, DVector};
 
 use crate::core::{
     activation::Activation, loss::LossFunction, optimizers::Optimizer,
@@ -15,18 +15,18 @@ pub struct MinibatchSGDSolver {
 impl MinibatchSGDSolver {
     pub fn train(
         &mut self,
-        data: &Array2<f64>,
-        targets: &Array1<f64>,
+        data: &DMatrix<f64>,
+        targets: &DVector<f64>,
         epochs: usize,
         learning_rate: f64,
         n_batches: usize,
         silent: bool,
         regularizer: &Regularization,
-    ) -> Array1<f64> {
+    ) -> DVector<f64> {
         let mut rng = rand::thread_rng();
         let mut eta = learning_rate;
 
-        let mut weights = Array1::from_elem(data.ncols(), 1.0);
+        let mut weights = DVector::from_element(data.ncols(), 1.0);
         let batch_size = data.nrows() / n_batches;
 
         for epoch in 0..epochs {
@@ -40,18 +40,18 @@ impl MinibatchSGDSolver {
                     batch_size
                 };
                 let inverse_batch_size = 1.0 / current_batch_size as f64;
-                let batch_data = data.slice(s![(j * batch_size)..current_batch_size, ..]);
-                let h = self.activation.call_on_all(batch_data.dot(&weights));
-                let y = targets.slice(s![(j * batch_size)..current_batch_size]).map(|x| *x);
+                let batch_data = data.rows(j * batch_size, current_batch_size);
+                let h = self.activation.call_on_all(batch_data * &weights);
+                let y: DVector<f64> = targets.rows(j * batch_size, current_batch_size).map(|x| x);
                 let errors = self.loss.loss_d(&y, &h);
                 eta = self.scheduler.eta(learning_rate, epoch);
-                let gradient = &batch_data.t().dot(&errors) * inverse_batch_size;
+                let gradient = &batch_data.transpose() * &errors * inverse_batch_size;
                 let coeff = regularizer.coeff(&weights);
 
                 self.optimizer.optimize(&mut weights, gradient, eta, coeff);
             }
             if epoch % 100 == 0 && !silent {
-                let h = self.activation.call_on_all(data.dot(&weights));
+                let h = self.activation.call_on_all(data * &weights);
                 let error: f64 = self.loss.loss(&targets, &h).sum() / targets.len() as f64;
                 println!("Epoch <{}: Current Errors {}", epoch, error);
             }

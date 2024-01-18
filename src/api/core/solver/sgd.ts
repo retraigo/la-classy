@@ -58,8 +58,8 @@ export class SGDSolver {
       this.#backend,
     );
     if (config.fit_intercept) {
-      this.weights = new Matrix(weights.slice(0, weights.length - 1), [1]);
-      this.bias = weights[weights.length - 1];
+      this.weights = new Matrix(weights.slice(1), [1]);
+      this.bias = weights[0];
     } else {
       this.weights = new Matrix(weights, [1]);
     }
