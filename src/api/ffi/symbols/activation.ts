@@ -3,6 +3,10 @@ export const activationSymbols = {
       parameters: [],
       result: "pointer",
     } as const,
+    tanh_activation: {
+      parameters: [],
+      result: "pointer",
+    } as const,
     no_activation: {
       parameters: [],
       result: "pointer",

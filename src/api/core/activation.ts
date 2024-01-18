@@ -9,6 +9,12 @@ export function sigmoidActivation(): Deno.PointerValue {
 /**
  * Use no activation function.
  */
-export function noActivation(): Deno.PointerValue {
+export function linearActivation(): Deno.PointerValue {
+  return symbols.no_activation();
+}
+/**
+ * Use tanh activation function.
+ */
+export function tanhActivation(): Deno.PointerValue {
   return symbols.no_activation();
 }
