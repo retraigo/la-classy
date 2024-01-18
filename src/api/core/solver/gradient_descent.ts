@@ -1,6 +1,6 @@
-import { Matrix } from "../../../helpers.ts";
+import { Matrix } from "../../../../deps.ts";
 import symbols from "../../ffi/ffi.ts";
-import { noActivation } from "../activation.ts";
+import { linearActivation } from "../activation.ts";
 import { mse } from "../loss.ts";
 import { noOptimizer } from "../optimizer.ts";
 import { regularizer } from "../regularizer.ts";
@@ -23,21 +23,21 @@ type TrainingConfig = {
 
 export class GradientDescentSolver {
   #backend: Deno.PointerValue;
-  weights: Matrix<Float64Array> | null;
+  weights: Matrix<"f64"> | null;
   bias: number;
   constructor(data: Partial<GradientDescentConfig> = {}) {
     this.#backend = symbols.gd_solver(
       data.scheduler || noDecay(),
       data.optimizer || noOptimizer(),
-      data.activation || noActivation(),
+      data.activation || linearActivation(),
       data.loss || mse(),
     );
     this.weights = null;
     this.bias = 0;
   }
   train(
-    data: Matrix<Float64Array>,
-    targets: Matrix<Float64Array>,
+    data: Matrix<"f64">,
+    targets: Matrix<"f64">,
     config: Partial<TrainingConfig>,
   ) {
     const x = new Uint8Array(data.data.buffer);

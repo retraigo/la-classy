@@ -1,1 +1,0 @@
-export * from "https://deno.land/x/vectorizer@v0.0.20/mod.ts";
