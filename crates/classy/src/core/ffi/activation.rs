@@ -6,6 +6,11 @@ pub unsafe extern "C" fn sigmoid_activation() -> isize {
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn tanh_activation() -> isize {
+    std::mem::transmute::<Box<Activation>, isize>(std::boxed::Box::new(Activation::Tanh))
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn no_activation() -> isize {
-    std::mem::transmute::<Box<Activation>, isize>(std::boxed::Box::new(Activation::None))
+    std::mem::transmute::<Box<Activation>, isize>(std::boxed::Box::new(Activation::Linear))
 }
