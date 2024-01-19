@@ -8,14 +8,10 @@ import {
   useSplit,
   CategoricalEncoder
 } from "https://deno.land/x/vectorizer@v0.3.4/mod.ts";
-import { binCrossEntropy } from "../src/api/core/loss.ts";
-import { sigmoidActivation, tanhActivation } from "../src/api/core/activation.ts";
-import {sigmoid} from "../src/helpers.ts"
 import { GradientDescentSolver } from "../src/mod.ts";
 import { softmaxActivation } from "../src/mod.ts";
 import { crossEntropy } from "../src/mod.ts";
 import { adamOptimizer } from "../src/mod.ts";
-import { regularizer } from "../src/mod.ts";
 
 // Read the training dataset
 const _data = Deno.readTextFileSync("examples/iris.csv");
