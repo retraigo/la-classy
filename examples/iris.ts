@@ -44,18 +44,27 @@ const time = performance.now();
 const solver = new GradientDescentSolver({
   loss: crossEntropy(),
   activation: softmaxActivation(),
-  optimizer: adamOptimizer(4, 3, 0.9, 0.999, 1e-14)
+  optimizer: adamOptimizer(4, 3)
 });
-solver.train(x_train, y_train, { learning_rate: 0.01, epochs: 100, silent: false, n_batches: 20 });
+solver.train(x_train, y_train, { learning_rate: 0.01, epochs: 300, silent: false, n_batches: 20 });
 console.log(`training time: ${performance.now() - time}ms`);
 
 const res = solver.predict(x_test)
 
-let i = 0
-const y_pred = [], y_act = []
+let i = 0;
 for (const row of res.rows()) {
-  y_act.push(y_test.row(i).reduce((acc, curr, i, arr) => arr[acc] > curr ? acc : i, 0))
-  y_pred.push(row.reduce((acc, curr, i) => row[acc] > curr ? acc : i, 0))
-  i += 1
+  const max = row.reduce((acc, curr, i, arr) => arr[acc] > curr ? acc : i, 0)
+  const newR = new Array(row.length).fill(0)
+  newR[max] = 1
+  res.setRow(i, newR)
+  i += 1;
 }
+
+const y_pred = encoder.untransform(res)
+const y_act = encoder.untransform(y_test)
+
+for (let i = 0; i < y_pred.length; i += 1) {
+  console.log(y_pred[i], y_act[i])
+}
+
 console.log(new ClassificationReport(y_act, y_pred))
