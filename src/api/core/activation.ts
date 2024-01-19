@@ -18,3 +18,10 @@ export function linearActivation(): Deno.PointerValue {
 export function tanhActivation(): Deno.PointerValue {
   return symbols.no_activation();
 }
+
+/**
+ * Use tanh activation function.
+ */
+export function softmaxActivation(): Deno.PointerValue {
+  return symbols.softmax_activation();
+}

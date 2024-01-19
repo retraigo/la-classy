@@ -7,6 +7,12 @@ export function binCrossEntropy(): Deno.PointerValue {
   return symbols.logit_loss();
 }
 /**
+ * Use Binary Cross Entropy or Logistic Loss for calculating gradients.
+ */
+export function crossEntropy(): Deno.PointerValue {
+  return symbols.crossentropy_loss();
+}
+/**
  * Use Mean Absolute Error for calculating gradients.
  */
 export function mae(): Deno.PointerValue {

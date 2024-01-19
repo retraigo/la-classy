@@ -7,6 +7,10 @@ export const activationSymbols = {
       parameters: [],
       result: "pointer",
     } as const,
+    softmax_activation: {
+      parameters: [],
+      result: "pointer",
+    } as const,
     no_activation: {
       parameters: [],
       result: "pointer",

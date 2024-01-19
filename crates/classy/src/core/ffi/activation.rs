@@ -11,6 +11,11 @@ pub unsafe extern "C" fn tanh_activation() -> isize {
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn softmax_activation() -> isize {
+    std::mem::transmute::<Box<Activation>, isize>(std::boxed::Box::new(Activation::Softmax))
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn no_activation() -> isize {
     std::mem::transmute::<Box<Activation>, isize>(std::boxed::Box::new(Activation::Linear))
 }

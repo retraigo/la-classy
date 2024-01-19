@@ -1,24 +1,27 @@
-use nalgebra::DVector;
+use nalgebra::{DMatrix, DVector};
 
 pub enum Activation {
     Linear,
     Sigmoid,
-    Tanh
+    Tanh,
+    Softmax,
 }
 
 impl Activation {
-    pub fn call(&self, h: f64) -> f64 {
-        match self {
-            Self::Linear => h,
-            Self::Sigmoid => sigmoid(h),
-            Self::Tanh => h.tanh()
-        }
-    }
-    pub fn call_on_all(&self, h: DVector<f64>) -> DVector<f64> {
+    pub fn call_on_all(&self, h: DMatrix<f64>) -> DMatrix<f64> {
         match self {
             Self::Linear => h,
             Self::Sigmoid => h.map(|x| sigmoid(x)),
-            Self::Tanh => h.map(|x| x.tanh())
+            Self::Tanh => h.map(|x| x.tanh()),
+            Self::Softmax => {
+                let mut res = DMatrix::zeros(h.nrows(), h.ncols());
+                for (mut res_row, h_row) in res.row_iter_mut().zip(h.row_iter()) {
+                    let exp_values = h_row.map(|v| v.exp());
+                    let sum_exp: f64 = exp_values.iter().sum();
+                    res_row.copy_from(&(exp_values / sum_exp));
+                }
+                res
+            }
         }
     }
 }

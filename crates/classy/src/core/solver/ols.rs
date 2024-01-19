@@ -2,19 +2,18 @@
  * Ordinary Least Squares
  */
 extern crate nalgebra as na;
-use na::{DMatrix, DVector};
+use na::DMatrix;
 
 pub struct OrdinaryLeastSquares;
 
 impl OrdinaryLeastSquares {
-    pub fn train(&self, data: &DMatrix<f64>, targets: &DVector<f64>, silent: bool) -> DVector<f64> {
+    pub fn train(&self, data: &DMatrix<f64>, targets: &DMatrix<f64>, silent: bool) -> DMatrix<f64> {
         let n = targets.len();
 
-        let y: DMatrix<f64> = DMatrix::from_row_slice(targets.len(), 1, targets.data.as_slice());
         let x_transpose = data.transpose();
 
         let xtx = &x_transpose * data;
-        let xty = &x_transpose * y;
+        let xty = &x_transpose * targets;
 
         let xtx_inverse = match xtx.try_inverse() {
             Some(inv) => inv,
@@ -39,6 +38,9 @@ impl OrdinaryLeastSquares {
             let r2 = 1f64 - (sse / sst);
             println!("R2 Score: {}", r2);
         }
-        DVector::from_row_slice(weights.as_slice())
+        weights
+    }
+    pub fn predict(&self, data: &DMatrix<f64>, weights: &DMatrix<f64>) -> DMatrix<f64> {
+        data * weights
     }
 }

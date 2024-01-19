@@ -5,6 +5,7 @@ export const optimizerSymbols = {
         "f64",
         "f64",
         "usize",
+        "usize",
       ],
       result: "pointer",
     } as const,
