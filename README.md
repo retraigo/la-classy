@@ -1,10 +1,10 @@
 <img src="/assets/lala.webp" alt="La Lala" height="256px" width="auto">
 
-<h1>Classy Lala</h1>
+<h1>La Classy</h1>
 
 This library is veeeeeeeery unstable (like my mood swings).
 
-WIP supervised machine learning library for Deno.
+WIP single layer perceptron library for Deno.
 
 Supports:
 - Gradient descent (normal, stochastic, minibatch)
