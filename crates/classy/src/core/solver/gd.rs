@@ -24,7 +24,7 @@ impl GradientDescentSolver {
         regularizer: &Regularization,
     ) -> DMatrix<f64> {
         let mut rng = rand::thread_rng();
-        let mut eta = learning_rate;
+        let mut eta: f64;
 
         let mut weights = DMatrix::from_element(data.ncols(), targets.ncols(), 1.0);
         let batch_size = if n_batches == 0 {
