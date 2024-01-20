@@ -1,5 +1,6 @@
 import { Matrix } from "../../../../deps.ts";
 import symbols from "../../ffi/ffi.ts";
+import { MaybeMatrix } from "../../types.ts";
 import { linearActivation } from "../activation.ts";
 import { mse } from "../loss.ts";
 import { noOptimizer } from "../optimizer.ts";
@@ -24,7 +25,7 @@ type TrainingConfig = {
 
 export class GradientDescentSolver {
   #backend: Deno.PointerValue;
-  weights: Matrix<"f64"> | null;
+  weights: MaybeMatrix | null;
   bias: number;
   fit_intercept: boolean;
   constructor(data: Partial<GradientDescentConfig> = {}) {
@@ -39,16 +40,16 @@ export class GradientDescentSolver {
     this.fit_intercept = false;
   }
   train(
-    data: Matrix<"f64">,
-    targets: Matrix<"f64">,
+    data: MaybeMatrix,
+    targets: MaybeMatrix,
     config: Partial<TrainingConfig>
   ) {
     const x = new Uint8Array(data.data.buffer);
     const y = new Uint8Array(targets.data.buffer);
 
     const weights = new Matrix<"f64">(Float64Array, [
-      data.nCols + (this.fit_intercept ? 1 : 0),
-      targets.nCols,
+      data.shape[1] + (this.fit_intercept ? 1 : 0),
+      targets.shape[1],
     ]);
     this.fit_intercept = config.fit_intercept ?? false;
 
@@ -57,25 +58,25 @@ export class GradientDescentSolver {
       w,
       x,
       y,
-      data.nRows,
-      data.nCols,
-      targets.nCols,
+      data.shape[0],
+      data.shape[1],
+      targets.shape[1],
       config.epochs || 100,
       config.learning_rate || 0.01,
       config.fit_intercept ?? false,
-      config.n_batches || Math.floor(Math.sqrt(data.nRows)),
+      config.n_batches || Math.floor(Math.sqrt(data.shape[0])),
       config.silent ?? true,
       config.regularizer || regularizer(0, 0),
       this.#backend
     );
     this.weights = weights;
   }
-  predict(data: Matrix<"f64">): Matrix<"f64"> {
+  predict(data: MaybeMatrix): Matrix<"f64"> {
     if (!this.weights) throw new Error("Solver not trained yet.");
     const x = new Uint8Array(data.data.buffer);
     const res = new Matrix<"f64">(Float64Array, [
-      data.nRows,
-      this.weights.nCols,
+      data.shape[0],
+      this.weights.shape[1],
     ]);
     const r = new Uint8Array(res.data.buffer);
     const w = new Uint8Array(this.weights.data.buffer);
@@ -83,9 +84,9 @@ export class GradientDescentSolver {
       r,
       w,
       x,
-      data.nRows,
-      data.nCols,
-      this.weights.nCols,
+      data.shape[0],
+      data.shape[1],
+      this.weights.shape[1],
       this.fit_intercept,
       this.#backend
     );
