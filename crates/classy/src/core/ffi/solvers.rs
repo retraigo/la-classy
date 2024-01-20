@@ -1,4 +1,4 @@
-use nalgebra::{DMatrix, DVector};
+use nalgebra::DMatrix;
 
 use crate::core::{
     activation::Activation,

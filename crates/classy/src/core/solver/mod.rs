@@ -2,7 +2,7 @@ mod gd;
 mod ols;
 
 pub use gd::GradientDescentSolver;
-use nalgebra::{DMatrix, DVector};
+use nalgebra::DMatrix;
 pub use ols::OrdinaryLeastSquares;
 
 use super::regularization::Regularization;
