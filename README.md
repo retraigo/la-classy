@@ -12,4 +12,4 @@ Supports:
 - Schedulers for learning rate
 
 Check out [deno-ml](https://github.com/retraigo/deno-ml) for examples!
-Discord: [Kuro's Chaos Abyss](https://discord.gg/A69vvdK)
+Discord: [Kuro's ~~Chaos Abyss~~ Graveyard](https://discord.gg/A69vvdK)
