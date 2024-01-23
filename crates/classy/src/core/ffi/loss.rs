@@ -11,6 +11,11 @@ pub unsafe extern "C" fn crossentropy_loss() -> isize {
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn hinge_loss() -> isize {
+    std::mem::transmute::<Box<LossFunction>, isize>(std::boxed::Box::new(LossFunction::Hinge))
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn mae_loss() -> isize {
     std::mem::transmute::<Box<LossFunction>, isize>(std::boxed::Box::new(LossFunction::MAE))
 }
