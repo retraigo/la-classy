@@ -1,7 +1,7 @@
 import symbols from "../ffi/ffi.ts";
 
 /**
- * Initialize an ADAM optimizer
+ * ADAM optimizer uses moments to adaptively adjust the learning rates for each parameter.
  * @param inputSize Size of each individual data point (number of columns in data).
  * @param outputSize Size of output (number of columns in target).
  * @param beta1 Hyperparameter for ADAM
@@ -19,7 +19,8 @@ export function adamOptimizer(
 }
 
 /**
- * Initialize an ADAM optimizer
+ * RMSProp optimizer maintains an exponentially decaying average of 
+ * squared gradients for each parameter.
  * @param inputSize Size of each individual data point (number of columns in data).
  * @param outputSize Size of output (number of columns in target).
  * @param beta1 Hyperparameter for ADAM
