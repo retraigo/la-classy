@@ -3,20 +3,11 @@ import { parse } from "https://deno.land/std@0.204.0/csv/parse.ts";
 // Import helpers for metrics
 import {
   ClassificationReport,
-  CategoricalEncoder,
   Matrix,
   // Split the dataset
   useSplit,
 } from "https://deno.land/x/vectorizer@v0.3.4/mod.ts";
-import { binCrossEntropy } from "../src/api/core/loss.ts";
-import { sigmoidActivation, tanhActivation } from "../src/api/core/activation.ts";
-import {sigmoid} from "../src/helpers.ts"
 import { GradientDescentSolver, hinge, linearActivation } from "../src/mod.ts";
-import { softmaxActivation } from "../src/mod.ts";
-import { crossEntropy } from "../src/mod.ts";
-
-// Define classes
-const classes = ["Setosa", "Versicolor"];
 
 // Read the training dataset
 const _data = Deno.readTextFileSync("examples/binary_iris.csv");
