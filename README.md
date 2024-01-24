@@ -2,7 +2,8 @@
 
 <h1>La Classy</h1>
 
-This library is veeeeeeeery unstable (like my mood swings).
+~~This library is veeeeeeeery unstable (like my mood swings)~~.
+This library is almost stable.
 
 WIP single layer perceptron library for Deno.
 
