@@ -106,9 +106,9 @@ pub unsafe extern "C" fn predict(
 ) {
     let x = unsafe { std::slice::from_raw_parts(data_ptr, n_samples * n_features) };
     let weights: &[f64] =
-        unsafe { std::slice::from_raw_parts(weights_ptr, n_features * n_weights) };
+        unsafe { std::slice::from_raw_parts(weights_ptr, (n_features + if fit_intercept { 1 } else { 0 }) * n_weights) };
     let mut data = DMatrix::from_row_slice(n_samples, n_features, x);
-    let w = DMatrix::from_row_slice(n_features, n_weights, weights);
+    let w = DMatrix::from_row_slice(n_features + if fit_intercept { 1 } else { 0 }, n_weights, weights);
 
     if fit_intercept {
         data = data.insert_column(0, 1.0);
