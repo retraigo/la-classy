@@ -15,11 +15,20 @@ export type GradientDescentConfig = {
 };
 
 type TrainingConfig = {
+  /** Maximum number of iterations to run. */
   epochs: number;
+  /** Learning rate. Set to a small number, eg. 0.01 */
   learning_rate: number;
+  /** Whether to incorporate an intercept/bias term. */
   fit_intercept: boolean;
+  /** Number of minibatches to run. */
   n_batches: number;
+  /** Whether to print training information each epoch. */
   silent: boolean;
+  /** Minimum threshold for weight updates in each epoch. */
+  tolerance: number;
+  /** Number of disappointing iterations to allow before early stopping */
+  patience: number;
   regularizer: Deno.PointerValue;
 };
 
@@ -66,6 +75,8 @@ export class GradientDescentSolver {
       config.fit_intercept ?? false,
       config.n_batches || Math.floor(Math.sqrt(data.shape[0])),
       config.silent ?? true,
+      config.tolerance || -1,
+      config.patience || -1,
       config.regularizer || regularizer(0, 0),
       this.#backend
     );

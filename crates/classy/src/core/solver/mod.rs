@@ -24,6 +24,8 @@ impl Solver {
         learning_rate: f64,
         n_batches: usize,
         silent: bool,
+        tolerance: f64,
+        patience: isize,
         regularizer: &Regularization,
     ) -> DMatrix<f64> {
         match self {
@@ -34,6 +36,8 @@ impl Solver {
                 learning_rate,
                 n_batches,
                 silent,
+                tolerance,
+                patience,
                 regularizer,
             ),
             Self::SAG(solver) => solver.train(
@@ -43,6 +47,8 @@ impl Solver {
                 learning_rate,
                 n_batches,
                 silent,
+                tolerance,
+                patience,
                 regularizer,
             ),
             Self::OLS(solver) => solver.train(data, targets, silent),

@@ -24,6 +24,8 @@ export const solverSymbols = {
       "bool",
       "usize",
       "bool",
+      "f64",
+      "isize",
       "pointer",
       "pointer",
     ],

@@ -46,9 +46,10 @@ const solver = new GradientDescentSolver({
 });
 solver.train(x_train, y_train, {
   learning_rate: 0.01,
-  epochs: 300,
+  epochs: 1000,
   silent: false,
   n_batches: 20,
+  patience: 12,
 });
 console.log(`training time: ${performance.now() - time}ms`);
 

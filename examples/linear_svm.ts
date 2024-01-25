@@ -17,7 +17,10 @@ const X = new Matrix<"f64">(Float64Array, [data.length, 4]);
 
 // Get the predictors (x) and targets (y)
 data.forEach((fl, i) => X.setRow(i, fl.slice(0, 4).map(Number)));
-const y = new Matrix<"f64">(Float64Array.from(data.map((fl) => fl[4] === "Setosa" ? 1 : -1)), [data.length]);
+const y = new Matrix<"f64">(
+  Float64Array.from(data.map((fl) => (fl[4] === "Setosa" ? 1 : -1))),
+  [data.length]
+);
 
 // Split the dataset for training and testing
 const [[x_train, y_train], [x_test, y_test]] = useSplit(
@@ -31,16 +34,24 @@ const solver = new SagSolver({
   loss: hinge(),
   activation: linearActivation(),
 });
-solver.train(x_train, y_train, { learning_rate: 0.001, epochs: 100, silent: false, n_batches: 0 });
+solver.train(x_train, y_train, {
+  learning_rate: 0.001,
+  epochs: 1000,
+  silent: false,
+  n_batches: 0,
+  patience: 5,
+  tolerance: 0,
+});
 console.log(`training time: ${performance.now() - time}ms`);
-const res = solver.predict(x_test)
+const res = solver.predict(x_test);
 
-let i = 0
-const y_pred = [], y_act = []
+let i = 0;
+const y_pred = [],
+  y_act = [];
 for (const row of res.rows()) {
-  console.log(row, y_test.row(i))
-  y_act.push(y_test.row(i)[0])
-  y_pred.push(row[0] > 0 ? 1 : -1)
-  i += 1
+  console.log(row, y_test.row(i));
+  y_act.push(y_test.row(i)[0]);
+  y_pred.push(row[0] > 0 ? 1 : -1);
+  i += 1;
 }
-console.log(new ClassificationReport(y_act, y_pred))
+console.log(new ClassificationReport(y_act, y_pred));

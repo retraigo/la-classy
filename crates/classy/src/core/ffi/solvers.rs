@@ -60,6 +60,8 @@ pub unsafe extern "C" fn solve(
     fit_intercept: bool,
     n_batches: usize,
     silent: bool,
+    tolerance: f64,
+    patience: isize,
     regularizer: *const Regularization,
     solver: *mut Solver,
 ) {
@@ -84,6 +86,8 @@ pub unsafe extern "C" fn solve(
         learning_rate,
         n_batches,
         silent,
+        tolerance,
+        patience,
         &*regularizer,
     );
     for (row, i) in weights.row_iter().zip(0..weights.nrows()) {
