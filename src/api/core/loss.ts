@@ -18,6 +18,8 @@ export function crossEntropy(): Deno.PointerValue {
 /**
  * Hinge loss is meant for binary classification using SVM.
  * Use this loss function with linear activation.
+ * Avoid using the `tolerance` hyperparameter for training
+ * when using hinge loss.
  */
 export function hinge(): Deno.PointerValue {
   return symbols.hinge_loss();

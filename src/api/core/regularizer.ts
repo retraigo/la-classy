@@ -8,6 +8,18 @@ import symbols from "../ffi/ffi.ts";
  * Value of 0 will apply pure L1 (lasso) regularization
  * and 1 will apply pure L2 (ridge) regularization.
  * @returns Regularizer for use in solver.
+ * 
+ * @example
+ * ```ts
+ * solver.train(x_train, y_train, {
+ *    learning_rate: 0.01,
+ *    epochs: 1000,
+ *    silent: false,
+ *    n_batches: 20,
+ *    patience: 12,
+ *    regularizer: regularizer(10, 1) // strength of 0.1 with pure l1
+ * });
+ * ```
  */
 export function regularizer(
   c: number,

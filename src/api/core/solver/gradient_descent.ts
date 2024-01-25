@@ -48,6 +48,26 @@ export class GradientDescentSolver {
     this.bias = 0;
     this.fit_intercept = false;
   }
+  /**
+   * Train using gradient descent.
+   * @param data
+   * @param targets
+   * @param config
+   *
+   * @example
+   * ```ts
+   * solver.train(x_train, y_train, {
+   *    learning_rate: 0.01,
+   *    epochs: 1000,
+   *    silent: false,
+   *    n_batches: 20,
+   *    fit_intercept: true,
+   *    patience: 12,
+   *    tolerance: 1e-6
+   *    regularizer: regularizer(10, 1) // strength of 0.1 with pure l1
+   * });
+   * ```
+   */
   train(
     data: MaybeMatrix,
     targets: MaybeMatrix,
