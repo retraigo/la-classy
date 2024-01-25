@@ -15,6 +15,6 @@ solver.train(
 
 console.log(solver.weights);
 
-console.log(
-  solver.predict({ data: Float64Array.from(x), shape: [x.length, 1] })
-);
+for (const pred of solver.predict({ data: Float64Array.from(x), shape: [x.length, 1] }).rows()) {
+    console.log(pred)
+}
