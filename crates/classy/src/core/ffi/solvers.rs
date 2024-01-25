@@ -6,7 +6,7 @@ use crate::core::{
     optimizers::Optimizer,
     regularization::Regularization,
     scheduler::Scheduler,
-    solver::{GradientDescentSolver, OrdinaryLeastSquares, Solver},
+    solver::{GradientDescentSolver, SAGSolver, OrdinaryLeastSquares, Solver},
 };
 
 #[no_mangle]
@@ -17,6 +17,22 @@ pub unsafe extern "C" fn gd_solver(
     loss: *const LossFunction,
 ) -> isize {
     let solver = Solver::GD(GradientDescentSolver {
+        scheduler: std::ptr::read(scheduler),
+        optimizer: std::ptr::read(optimizer),
+        activation: std::ptr::read(activation),
+        loss: std::ptr::read(loss),
+    });
+    std::mem::transmute::<Box<Solver>, isize>(std::boxed::Box::new(solver))
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn sag_solver(
+    scheduler: *const Scheduler,
+    optimizer: *mut Optimizer,
+    activation: *const Activation,
+    loss: *const LossFunction,
+) -> isize {
+    let solver = Solver::SAG(SAGSolver {
         scheduler: std::ptr::read(scheduler),
         optimizer: std::ptr::read(optimizer),
         activation: std::ptr::read(activation),

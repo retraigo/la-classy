@@ -1,15 +1,18 @@
 mod gd;
 mod ols;
+mod sag;
 
 pub use gd::GradientDescentSolver;
 use nalgebra::DMatrix;
 pub use ols::OrdinaryLeastSquares;
+pub use sag::SAGSolver;
 
 use super::regularization::Regularization;
 
 pub enum Solver {
     GD(GradientDescentSolver),
     OLS(OrdinaryLeastSquares),
+    SAG(SAGSolver)
 }
 
 impl Solver {
@@ -33,6 +36,15 @@ impl Solver {
                 silent,
                 regularizer,
             ),
+            Self::SAG(solver) => solver.train(
+                data,
+                targets,
+                epochs,
+                learning_rate,
+                n_batches,
+                silent,
+                regularizer,
+            ),
             Self::OLS(solver) => solver.train(data, targets, silent),
         }
     }
@@ -40,6 +52,7 @@ impl Solver {
         match self {
             Self::GD(solver) => solver.predict(data, weights),
             Self::OLS(solver) => solver.predict(data, weights),
+            Self::SAG(solver) => solver.predict(data, weights),
         }
     }
 }
