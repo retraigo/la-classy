@@ -9,12 +9,13 @@ const solver = new OLSSolver();
 solver.train(
   { data: Float64Array.from(x), shape: [x.length, 1] },
   { data: Float64Array.from(y.flat()), shape: [y.length, 2] },
-  true,
-  false
+  { silent: false, fit_intercept: true }
 );
 
 console.log(solver.weights);
 
-for (const pred of solver.predict({ data: Float64Array.from(x), shape: [x.length, 1] }).rows()) {
-    console.log(pred)
+for (const pred of solver
+  .predict({ data: Float64Array.from(x), shape: [x.length, 1] })
+  .rows()) {
+  console.log(pred);
 }
