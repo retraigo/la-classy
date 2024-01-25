@@ -1,7 +1,7 @@
 import { useSeries } from "https://deno.land/x/vectorizer@v0.3.4/mod.ts";
 import { OLSSolver } from "../src/mod.ts";
 
-const x = useSeries(12, 24, 2);
+const x = useSeries(12, 120, 2);
 const y = x.map((a) => [a * 6 + 13, a * 4 + 2]);
 
 const solver = new OLSSolver();
