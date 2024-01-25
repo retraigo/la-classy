@@ -3,6 +3,10 @@ export const solverSymbols = {
     parameters: ["pointer", "pointer", "pointer", "pointer"],
     result: "pointer",
   } as const,
+  sag_solver: {
+    parameters: ["pointer", "pointer", "pointer", "pointer"],
+    result: "pointer",
+  } as const,
   ols_solver: {
     parameters: [],
     result: "pointer",
