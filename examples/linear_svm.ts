@@ -7,7 +7,7 @@ import {
   // Split the dataset
   useSplit,
 } from "https://deno.land/x/vectorizer@v0.3.4/mod.ts";
-import { GradientDescentSolver, hinge, linearActivation } from "../src/mod.ts";
+import { SagSolver, hinge, linearActivation } from "../src/mod.ts";
 
 // Read the training dataset
 const _data = Deno.readTextFileSync("examples/binary_iris.csv");
@@ -27,7 +27,7 @@ const [[x_train, y_train], [x_test, y_test]] = useSplit(
 );
 const time = performance.now();
 
-const solver = new GradientDescentSolver({
+const solver = new SagSolver({
   loss: hinge(),
   activation: linearActivation(),
 });
