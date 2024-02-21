@@ -1,4 +1,16 @@
 {
+  "name": "@lala/classy",
+  "version": "1.0.0",
+  "exports": "./mod.ts",
+  "exclude": [
+    "crates",
+    "examples",
+    ".github",
+    ".vscode",
+    "Cargo.toml",
+    "Cargo.lock",
+    "target"
+  ],
   "tasks": {
     "build": "cargo build --release"
   }

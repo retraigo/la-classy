@@ -1,4 +1,4 @@
-import { dlopen, FetchOptions } from "https://deno.land/x/plug@1.0.2/mod.ts";
+import { dlopen, FetchOptions } from "../../../deps.ts";
 
 import { CLASSY_LALA_VERSION } from "../../../version.ts";
 import symbols from "./symbols/mod.ts";
