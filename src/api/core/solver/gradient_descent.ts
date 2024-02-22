@@ -76,10 +76,9 @@ export class GradientDescentSolver {
     const x = new Uint8Array(data.data.buffer);
     const y = new Uint8Array(targets.data.buffer);
 
-    const weights = new Matrix<"f64">(Float64Array, [
-      data.shape[1] + (this.fit_intercept ? 1 : 0),
-      targets.shape[1],
-    ]);
+    const weights = new Matrix("f64", {
+      shape: [data.shape[1] + (this.fit_intercept ? 1 : 0), targets.shape[1]],
+    });
     this.fit_intercept = config.fit_intercept ?? false;
 
     const w = new Uint8Array(weights.data.buffer);
@@ -105,10 +104,9 @@ export class GradientDescentSolver {
   predict(data: MaybeMatrix): Matrix<"f64"> {
     if (!this.weights) throw new Error("Solver not trained yet.");
     const x = new Uint8Array(data.data.buffer);
-    const res = new Matrix<"f64">(Float64Array, [
-      data.shape[0],
-      this.weights.shape[1],
-    ]);
+    const res = new Matrix("f64", {
+      shape: [data.shape[0], this.weights.shape[1]],
+    });
     const r = new Uint8Array(res.data.buffer);
     const w = new Uint8Array(this.weights.data.buffer);
     symbols.predict(
