@@ -63,9 +63,7 @@ pub fn tukey_d(y: &DMatrix<f64>, y1: &DMatrix<f64>, c: f64) -> DMatrix<f64> {
     (y1 - y).map(|el| {
         let r = el.abs();
         if r <= c {
-            let t = r / c;
-            let t_squared_complement = 1.0 - (t.powi(2));
-            t_squared_complement.powi(2) * r
+            r * (1.0 - ((r / c).powi(2))).powi(2)
         } else {
             0f64
         }
