@@ -20,12 +20,11 @@ pub fn hinge_d(y: &DMatrix<f64>, y1: &DMatrix<f64>) -> DMatrix<f64> {
 
 pub fn smooth_hinge(y: &DMatrix<f64>, y1: &DMatrix<f64>) -> DMatrix<f64> {
     y.zip_map(y1, |y_i, y1_i| {
-        let yy = y_i * y1_i;
-        if yy > -1f64 {
-            let margin = 1.0 - yy;
-            margin.max(0.0)
+        let margin = y_i * y1_i;
+        if margin > -1f64 {
+            (1.0 - margin).max(0.0)
         } else {
-            -4f64 * yy
+            -4f64 * margin
         }
     })
 }
