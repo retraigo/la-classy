@@ -25,6 +25,13 @@ export function hinge(): Deno.PointerValue {
   return symbols.hinge_loss();
 }
 /**
+ * Huber loss is a loss function for regression and is less 
+ * sensitive to outliers than the squared error loss
+ */
+export function huber(delta = 1): Deno.PointerValue {
+  return symbols.huber_loss(delta);
+}
+/**
  * Use Mean Absolute Error for calculating gradients.
  * Meant for regression tasks.
  */
@@ -37,4 +44,12 @@ export function mae(): Deno.PointerValue {
  */
 export function mse(): Deno.PointerValue {
   return symbols.mse_loss();
+}
+/**
+ * A variant of the Huber loss function used for 
+ * binary classification. It is a smoothed version
+ * of hinge loss and is more robust to outliers.
+ */
+export function smoothedHinge(): Deno.PointerValue {
+  return symbols.smooth_hinge_loss();
 }

@@ -11,11 +11,19 @@ export const lossSymbols = {
     parameters: [],
     result: "pointer",
   } as const,
+  huber_loss: {
+    parameters: ["f64"],
+    result: "pointer",
+  } as const,
   mae_loss: {
     parameters: [],
     result: "pointer",
   } as const,
   mse_loss: {
+    parameters: [],
+    result: "pointer",
+  } as const,
+  smooth_hinge_loss: {
     parameters: [],
     result: "pointer",
   } as const,
