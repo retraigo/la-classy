@@ -31,6 +31,6 @@ pub unsafe extern "C" fn mse_loss() -> isize {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn smooth_hinge() -> isize {
+pub unsafe extern "C" fn smooth_hinge_loss() -> isize {
     std::mem::transmute::<Box<LossFunction>, isize>(std::boxed::Box::new(LossFunction::SmoothedHinge))
 }
