@@ -27,4 +27,8 @@ export const lossSymbols = {
     parameters: [],
     result: "pointer",
   } as const,
+  tukey_loss: {
+    parameters: ["f64"],
+    result: "pointer",
+  } as const,
 };

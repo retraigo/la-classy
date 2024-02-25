@@ -24,11 +24,10 @@ export class OLSSolver {
   train(data: MaybeMatrix, targets: MaybeMatrix, config: TrainingConfig) {
     const x = new Uint8Array(data.data.buffer);
     const y = new Uint8Array(targets.data.buffer);
-
+    this.fit_intercept = config.fit_intercept ?? false;
     const weights = new Matrix("f64", {
       shape: [data.shape[1] + (this.fit_intercept ? 1 : 0), targets.shape[1]],
     });
-    this.fit_intercept = config.fit_intercept ?? false;
 
     const w = new Uint8Array(weights.data.buffer);
     symbols.solve(

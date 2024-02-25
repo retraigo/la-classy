@@ -1,8 +1,8 @@
 use nalgebra::DMatrix;
 
 pub mod crossentropy;
-pub mod mean;
 pub mod hinge;
+pub mod mean;
 
 pub enum LossFunction {
     BinCrossEntropy,
@@ -12,6 +12,7 @@ pub enum LossFunction {
     MAE,
     MSE,
     SmoothedHinge,
+    Tukey(f64),
 }
 
 impl LossFunction {
@@ -23,7 +24,8 @@ impl LossFunction {
             LossFunction::Huber(delta) => mean::huber(y, y1, *delta),
             LossFunction::MAE => mean::mae(&y, &y1),
             LossFunction::MSE => mean::mse(&y, &y1),
-            LossFunction::SmoothedHinge => hinge::smooth_hinge(y, y1)
+            LossFunction::SmoothedHinge => hinge::smooth_hinge(y, y1),
+            LossFunction::Tukey(c) => mean::tukey(y, y1, *c),
         }
     }
     pub fn loss_d(&self, y: &DMatrix<f64>, y1: &DMatrix<f64>) -> DMatrix<f64> {
@@ -34,7 +36,8 @@ impl LossFunction {
             LossFunction::Huber(delta) => mean::huber_d(y, y1, *delta),
             LossFunction::MAE => mean::mae_d(&y, &y1),
             LossFunction::MSE => mean::mse_d(&y, &y1),
-            LossFunction::SmoothedHinge => hinge::smooth_hinge_d(y, y1)
+            LossFunction::SmoothedHinge => hinge::smooth_hinge_d(y, y1),
+            LossFunction::Tukey(c) => mean::tukey_d(y, y1, *c),
         }
     }
 }

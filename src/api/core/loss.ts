@@ -25,10 +25,10 @@ export function hinge(): Deno.PointerValue {
   return symbols.hinge_loss();
 }
 /**
- * Huber loss is a loss function for regression and is less 
+ * Huber loss is a loss function for regression and is less
  * sensitive to outliers than the squared error loss
  */
-export function huber(delta = 1): Deno.PointerValue {
+export function huber(delta = 1.5): Deno.PointerValue {
   return symbols.huber_loss(delta);
 }
 /**
@@ -46,10 +46,17 @@ export function mse(): Deno.PointerValue {
   return symbols.mse_loss();
 }
 /**
- * A variant of the Huber loss function used for 
+ * A variant of the Huber loss function used for
  * binary classification. It is a smoothed version
  * of hinge loss and is more robust to outliers.
  */
 export function smoothedHinge(): Deno.PointerValue {
   return symbols.smooth_hinge_loss();
+}
+/**
+ * A robust loss function for regression problems.
+ * @param c Tuning parameter for Tukey's Biweight
+ */
+export function tukey(c = 4.685): Deno.PointerValue {
+  return symbols.tukey_loss(c);
 }
