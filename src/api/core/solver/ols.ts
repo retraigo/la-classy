@@ -9,6 +9,9 @@ type TrainingConfig = {
   silent: boolean;
 };
 
+/**
+ * A very ordinary Least Squares solver.
+ */
 export class OLSSolver {
   #backend: Deno.PointerValue;
   weights: MaybeMatrix | null;
@@ -18,11 +21,7 @@ export class OLSSolver {
     this.weights = null;
     this.fit_intercept = false;
   }
-  train(
-    data: MaybeMatrix,
-    targets: MaybeMatrix,
-    config: TrainingConfig
-  ) {
+  train(data: MaybeMatrix, targets: MaybeMatrix, config: TrainingConfig) {
     const x = new Uint8Array(data.data.buffer);
     const y = new Uint8Array(targets.data.buffer);
 
@@ -51,6 +50,15 @@ export class OLSSolver {
     );
     this.weights = weights;
   }
+  /**
+   * Predict the target variables using input
+   * @param data
+   * @returns A matrix of shape (n_samples, n_targets)
+   * @example
+   * ```ts
+   * const res = solver.predict(x_test);
+   * ```
+   */
   predict(data: MaybeMatrix): Matrix<"f64"> {
     if (!this.weights) throw new Error("Solver not trained yet.");
     const x = new Uint8Array(data.data.buffer);

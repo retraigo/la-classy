@@ -32,6 +32,11 @@ type TrainingConfig = {
   regularizer: Deno.PointerValue;
 };
 
+/**
+ * General solver for gradient descent.
+ * Uses stochastic gradient descent if
+ * n_batches is greater than 1.
+ */
 export class GradientDescentSolver {
   #backend: Deno.PointerValue;
   weights: MaybeMatrix | null;
@@ -101,6 +106,15 @@ export class GradientDescentSolver {
     );
     this.weights = weights;
   }
+  /**
+   * Predict the target variables using input
+   * @param data
+   * @returns A matrix of shape (n_samples, n_targets)
+   * @example
+   * ```ts
+   * const res = solver.predict(x_test);
+   * ```
+   */
   predict(data: MaybeMatrix): Matrix<"f64"> {
     if (!this.weights) throw new Error("Solver not trained yet.");
     const x = new Uint8Array(data.data.buffer);
