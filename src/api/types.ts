@@ -1,4 +1,3 @@
-export type MaybeMatrix = {
-    data: Float64Array,
-    shape: [number, number]
-}
+import type { MatrixLike } from "../../deps.ts";
+
+export type MaybeMatrix = MatrixLike<"f64">;

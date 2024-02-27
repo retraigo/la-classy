@@ -4,6 +4,7 @@
     "specifiers": {
       "jsr:@denosaurs/plug@1.0.3": "jsr:@denosaurs/plug@1.0.3",
       "jsr:@lala/appraisal@0.4.0": "jsr:@lala/appraisal@0.4.0",
+      "jsr:@lala/appraisal@0.6.0": "jsr:@lala/appraisal@0.6.0",
       "jsr:@std/assert@^0.213.1": "jsr:@std/assert@0.213.1",
       "jsr:@std/encoding@0.213.1": "jsr:@std/encoding@0.213.1",
       "jsr:@std/fmt@0.213.1": "jsr:@std/fmt@0.213.1",
@@ -24,6 +25,9 @@
       },
       "@lala/appraisal@0.4.0": {
         "integrity": "a7bd9602145cad768d19e13a4590a8971b55488bd74c9d2b8d94ecd7e9eb5c69"
+      },
+      "@lala/appraisal@0.6.0": {
+        "integrity": "769a3999489d1d9281127b1f6df0a6145fdae495e734c9ffccc0986e1f146e89"
       },
       "@std/assert@0.213.1": {
         "integrity": "24c28178b30c8e0782c18e8e94ea72b16282207569cdd10ffb9d1d26f2edebfe"
