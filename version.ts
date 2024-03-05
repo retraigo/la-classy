@@ -1,1 +1,1 @@
-export const CLASSY_LALA_VERSION = "v1.2.1"
+export const CLASSY_LALA_VERSION = "v1.2.2"

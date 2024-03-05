@@ -5,7 +5,7 @@
  * 
  * @example
  * ```ts
- * import { Matrix } from "jsr:@lala/appraisal@0.7.4";
+ * import { Matrix } from "jsr:@lala/appraisal@0.7.5";
  * import { GradientDescentSolver, adamOptimizer, huber } from "jsr:@lala/classy@1.2.1";
  * 
  * const x = [100, 23, 53, 56, 12, 98, 75];

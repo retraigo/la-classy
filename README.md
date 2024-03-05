@@ -42,7 +42,7 @@ This library is written TypeScript and Rust and it uses FFI.
 ### Regression
 
 ```ts
-import { Matrix } from "jsr:@lala/appraisal@0.7.4";
+import { Matrix } from "jsr:@lala/appraisal@0.7.5";
 import {
   GradientDescentSolver,
   adamOptimizer,
