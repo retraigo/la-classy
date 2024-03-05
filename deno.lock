@@ -6,6 +6,7 @@
       "jsr:@lala/appraisal@0.4.0": "jsr:@lala/appraisal@0.4.0",
       "jsr:@lala/appraisal@0.6.0": "jsr:@lala/appraisal@0.6.0",
       "jsr:@lala/appraisal@0.7.3": "jsr:@lala/appraisal@0.7.3",
+      "jsr:@lala/appraisal@0.7.4": "jsr:@lala/appraisal@0.7.4",
       "jsr:@std/assert@^0.213.1": "jsr:@std/assert@0.213.1",
       "jsr:@std/encoding@0.213.1": "jsr:@std/encoding@0.213.1",
       "jsr:@std/fmt@0.213.1": "jsr:@std/fmt@0.213.1",
@@ -32,6 +33,9 @@
       },
       "@lala/appraisal@0.7.3": {
         "integrity": "a826a2e1168fb675ae11bf21be2dfc2854f751ece3f52785f013c30d4296273b"
+      },
+      "@lala/appraisal@0.7.4": {
+        "integrity": "4da9b3a7aa0bf7f4c802f9a1ca9d196e144f98ee1717d06618a58e2e7493ed47"
       },
       "@std/assert@0.213.1": {
         "integrity": "24c28178b30c8e0782c18e8e94ea72b16282207569cdd10ffb9d1d26f2edebfe"
