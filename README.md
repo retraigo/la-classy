@@ -40,26 +40,44 @@ This library is written TypeScript and Rust and it uses FFI.
 ## Quick Example
 
 ### Regression
+
 ```ts
-import { OLSSolver } from "https://deno.land/x/classylala/mod.ts";
+import { Matrix } from "jsr:@lala/appraisal@0.7.4";
+import {
+  GradientDescentSolver,
+  adamOptimizer,
+  huber,
+} from "jsr:@lala/classy@1.2.1";
 
 const x = [100, 23, 53, 56, 12, 98, 75];
 const y = x.map((a) => [a * 6 + 13, a * 4 + 2]);
 
-const solver = new OLSSolver();
+const solver = new GradientDescentSolver({
+  // Huber loss is a mix of MSE and MAE
+  loss: huber(),
+  // ADAM optimizer with 1 + 1 input for intercept, 2 outputs.
+  optimizer: adamOptimizer(2, 2),
+});
 
+// Train for 700 epochs in 2 minibatches
 solver.train(
-  { data: Float64Array.from(x), shape: [x.length, 1] },
-  { data: Float64Array.from(y.flat()), shape: [y.length, 2] },
-  { silent: false, fit_intercept: true }
+  new Matrix(
+    x.map((n) => [n]),
+    "f64"
+  ),
+  new Matrix(y, "f64"),
+  { silent: false, fit_intercept: true, epochs: 700, n_batches: 2 }
 );
 
-const res = solver.predict({
-  data: Float64Array.from(x),
-  shape: [x.length, 1],
-});
-for (const pred of res.rows()) {
-  console.log(pred);
+const res = solver.predict(
+  new Matrix(
+    x.map((n) => [n]),
+    "f64"
+  )
+);
+
+for (let i = 0; i < res.nRows; i += 1) {
+  console.log(Array.from(res.row(i)), y[i]);
 }
 ```
 
