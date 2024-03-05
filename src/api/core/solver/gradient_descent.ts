@@ -7,6 +7,7 @@ import { noOptimizer } from "../optimizer.ts";
 import { regularizer } from "../regularizer.ts";
 import { noDecay } from "../scheduler.ts";
 
+/** Config for Gradient Descent & SAG */
 export type GradientDescentConfig = {
   scheduler: Deno.PointerValue;
   optimizer: Deno.PointerValue;
