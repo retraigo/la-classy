@@ -2,6 +2,7 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "jsr:@chiba/wget@0.0.3": "jsr:@chiba/wget@0.0.3",
       "jsr:@denosaurs/plug@1.0.3": "jsr:@denosaurs/plug@1.0.3",
       "jsr:@lala/appraisal@0.4.0": "jsr:@lala/appraisal@0.4.0",
       "jsr:@lala/appraisal@0.6.0": "jsr:@lala/appraisal@0.6.0",
@@ -16,6 +17,9 @@
       "npm:nodejs-polars": "npm:nodejs-polars@0.8.4"
     },
     "jsr": {
+      "@chiba/wget@0.0.3": {
+        "integrity": "affc5deaf1dde0bf5ddc92c16caa4dfeff90cd4a6c0997f1d5b7a3ba35389182"
+      },
       "@denosaurs/plug@1.0.3": {
         "integrity": "b010544e386bea0ff3a1d05e0c88f704ea28cbd4d753439c2f1ee021a85d4640",
         "dependencies": [

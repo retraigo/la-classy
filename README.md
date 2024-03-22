@@ -81,15 +81,14 @@ for (let i = 0; i < res.nRows; i += 1) {
 }
 ```
 
-There are other examples in [/examples](https://github.com/retraigo/la-classy/tree/main/examples)
+There are other examples in [retraigo/deno-ml](https://github.com/retraigo/deno-ml).
 
 ## Documentation
 
-[Deno `/x`](https://deno.land/x/classylala/mod.ts)
+[JSR](https://jsr.io/@lala/classy)
 
 ## Maintainers
 
 Pranev ([retraigo](https://github.com/retraigo))
 
-Check out [deno-ml](https://github.com/retraigo/deno-ml) for examples!
 Discord: [Kuro's ~~Chaos Abyss~~ Graveyard](https://discord.gg/A69vvdK)
