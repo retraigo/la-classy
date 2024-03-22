@@ -8,15 +8,15 @@ import { regularizer } from "../regularizer.ts";
 import { noDecay } from "../scheduler.ts";
 import { GradientDescentConfig } from "./gradient_descent.ts";
 
-type TrainingConfig = {
+export type SagTrainingConfig = {
   /** Maximum number of iterations to run. */
   epochs: number;
   /** Learning rate. Set to a small number, eg. 0.01 */
   learning_rate: number;
   /** Whether to incorporate an intercept/bias term. */
   fit_intercept: boolean;
-  /** Number of minibatches to run. */
-  n_batches: number;
+  /** Number of minibatches to run. Set to 0 for SGD. */
+  n_batches?: number;
   /** Whether to print training information each epoch. */
   silent: boolean;
   /** Minimum threshold for weight updates in each epoch. */
@@ -68,7 +68,7 @@ export class SagSolver {
   train(
     data: MaybeMatrix,
     targets: MaybeMatrix,
-    config: Partial<TrainingConfig>
+    config: Partial<SagTrainingConfig>
   ) {
     const x = new Uint8Array(data.data.buffer);
     const y = new Uint8Array(targets.data.buffer);
@@ -89,7 +89,7 @@ export class SagSolver {
       config.epochs || 100,
       config.learning_rate || 0.01,
       config.fit_intercept ?? false,
-      config.n_batches || Math.floor(Math.sqrt(data.shape[0])),
+      config.n_batches ?? Math.floor(Math.sqrt(data.shape[0])),
       config.silent ?? true,
       config.tolerance || -1,
       config.patience || -1,
