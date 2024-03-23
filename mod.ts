@@ -20,13 +20,13 @@
  * 
  * // Train for 700 epochs in 2 minibatches
  * solver.train(
- *     new Matrix(x.map(n => [n]), "f64"),
- *     new Matrix(y, "f64"),
+ *     new Matrix(x.map(n => [n]), "f32"),
+ *     new Matrix(y, "f32"),
  *     { silent: false, fit_intercept: true, epochs: 700, n_batches: 2 },
  * );
  * 
  * const res = solver.predict(
- *     new Matrix(x.map(n => [n]), "f64"),
+ *     new Matrix(x.map(n => [n]), "f32"),
  * );
  * 
  * for (let i = 0; i < res.nRows; i += 1) {

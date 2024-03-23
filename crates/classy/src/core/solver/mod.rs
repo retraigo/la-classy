@@ -15,16 +15,16 @@ pub enum Solver {
 impl Solver {
     pub fn solve(
         &mut self,
-        data: &Array2<f64>,
-        targets: &Array2<f64>,
+        data: &Array2<f32>,
+        targets: &Array2<f32>,
         epochs: usize,
-        learning_rate: f64,
+        learning_rate: f32,
         n_batches: usize,
         silent: bool,
-        tolerance: f64,
+        tolerance: f32,
         patience: isize,
         regularizer: &Regularization,
-    ) -> Array2<f64> {
+    ) -> Array2<f32> {
         match self {
             Self::GD(solver) => solver.train(
                 data,
@@ -50,7 +50,7 @@ impl Solver {
             ),
         }
     }
-    pub fn predict(&self, data: &Array2<f64>, weights: &Array2<f64>) -> Array2<f64> {
+    pub fn predict(&self, data: &Array2<f32>, weights: &Array2<f32>) -> Array2<f32> {
         match self {
             Self::GD(solver) => solver.predict(data, weights),
             Self::SAG(solver) => solver.predict(data, weights),

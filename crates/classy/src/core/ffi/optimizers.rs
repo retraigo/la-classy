@@ -2,9 +2,9 @@ use crate::core::optimizers::{OptimizerConfig, Optimizer};
 
 #[no_mangle]
 pub unsafe extern "C" fn adam_optimizer(
-    beta1: f64,
-    beta2: f64,
-    epsilon: f64,
+    beta1: f32,
+    beta2: f32,
+    epsilon: f32,
     input_size: usize,
     output_size: usize,
 ) -> isize {
@@ -15,8 +15,8 @@ pub unsafe extern "C" fn adam_optimizer(
 
 #[no_mangle]
 pub unsafe extern "C" fn rmsprop_optimizer(
-    decay_rate: f64,
-    epsilon: f64,
+    decay_rate: f32,
+    epsilon: f32,
     input_size: usize,
     output_size: usize,
 ) -> isize {

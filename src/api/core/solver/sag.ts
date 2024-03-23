@@ -73,7 +73,7 @@ export class SagSolver {
     const x = new Uint8Array(data.data.buffer);
     const y = new Uint8Array(targets.data.buffer);
     this.fit_intercept = config.fit_intercept ?? false;
-    const weights = new Matrix("f64", [
+    const weights = new Matrix("f32", [
       data.shape[1] + (this.fit_intercept ? 1 : 0),
       targets.shape[1],
     ]);
@@ -107,10 +107,10 @@ export class SagSolver {
    * const res = solver.predict(x_test);
    * ```
    */
-  predict(data: MaybeMatrix): Matrix<"f64"> {
+  predict(data: MaybeMatrix): Matrix<"f32"> {
     if (!this.weights) throw new Error("Solver not trained yet.");
     const x = new Uint8Array(data.data.buffer);
-    const res = new Matrix("f64", [data.shape[0], this.weights.shape[1]]);
+    const res = new Matrix("f32", [data.shape[0], this.weights.shape[1]]);
     const r = new Uint8Array(res.data.buffer);
     const w = new Uint8Array(this.weights.data.buffer);
     symbols.predict(

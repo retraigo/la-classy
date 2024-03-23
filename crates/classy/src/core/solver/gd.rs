@@ -15,23 +15,23 @@ pub struct GradientDescentSolver {
 impl GradientDescentSolver {
     pub fn train(
         &mut self,
-        data: &Array2<f64>,
-        targets: &Array2<f64>,
+        data: &Array2<f32>,
+        targets: &Array2<f32>,
         epochs: usize,
-        learning_rate: f64,
+        learning_rate: f32,
         n_batches: usize,
         silent: bool,
-        tolerance: f64,
+        tolerance: f32,
         patience: isize,
         regularizer: &Regularization,
-    ) -> Array2<f64> {
+    ) -> Array2<f32> {
         let mut rng = rand::thread_rng();
-        let mut eta: f64;
+        let mut eta: f32;
 
         let mut weights = Array2::from_elem((data.ncols(), targets.ncols()), 1.0);
 
         let mut best_weights = weights.clone();
-        let mut best_loss = f64::INFINITY;
+        let mut best_loss = f32::INFINITY;
         let mut disappointment = 0;
 
         let mut previous_weights = weights.clone();
@@ -53,13 +53,13 @@ impl GradientDescentSolver {
                 };
                 let start = j * batch_size;
                 let batch_data = data.slice(s![start..(start + current_batch_size), ..]);
-                let h: Array2<f64> = self.activation.call_on_all(batch_data.dot(&weights));
-                let y: Array2<f64> = targets.slice(s![start..(start + current_batch_size), ..]).clone().map(|x| *x);
+                let h: Array2<f32> = self.activation.call_on_all(batch_data.dot(&weights));
+                let y: Array2<f32> = targets.slice(s![start..(start + current_batch_size), ..]).map(|x| *x);
                 let errors = self.loss.loss_d(&y, &h);
                 eta = self.scheduler.eta(learning_rate, epoch);
                 let gradient = &batch_data.t().dot(&errors);
                 let coeff = regularizer.coeff(&weights);
-                self.optimizer.optimize(&mut weights, gradient.clone(), eta, coeff);
+                self.optimizer.optimize(&mut weights, &gradient, eta, &coeff);
                 if tolerance > 0.0 {
                     let difference = (&weights - &previous_weights)
                         .map(|x| x.powi(2))
@@ -75,7 +75,7 @@ impl GradientDescentSolver {
             }
             if !silent || patience != -1 {
                 let h = self.activation.call_on_all(data.dot(&weights));
-                let error: f64 = self.loss.loss(&targets, &h).sum() / targets.len() as f64;
+                let error: f32 = self.loss.loss(&targets, &h).sum() / targets.len() as f32;
                 if patience != -1 {
                     if error < best_loss {
                         disappointment = 0;
@@ -97,7 +97,7 @@ impl GradientDescentSolver {
         }
         weights
     }
-    pub fn predict(&self, data: &Array2<f64>, weights: &Array2<f64>) -> Array2<f64> {
+    pub fn predict(&self, data: &Array2<f32>, weights: &Array2<f32>) -> Array2<f32> {
         let res = data.dot(weights);
         self.activation.call_on_all(res)
     }

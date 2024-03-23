@@ -1,6 +1,6 @@
 export const regularizerSymbols = {
   regularizer: {
-    parameters: ["f64", "f64"],
+    parameters: ["f32", "f32"],
     result: "pointer",
   } as const,
 };

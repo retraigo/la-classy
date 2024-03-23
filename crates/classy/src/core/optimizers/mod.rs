@@ -5,13 +5,13 @@ mod rmsprop;
 pub enum OptimizerConfig {
     None,
     Adam {
-        beta1: f64,
-        beta2: f64,
-        epsilon: f64,
+        beta1: f32,
+        beta2: f32,
+        epsilon: f32,
     },
     RMSProp {
-        decay_rate: f64,
-        epsilon: f64,
+        decay_rate: f32,
+        epsilon: f32,
     },
 }
 pub enum Optimizer {
@@ -48,10 +48,10 @@ impl Optimizer {
     }
     pub fn optimize(
         &mut self,
-        weights: &mut Array2<f64>,
-        gradient: Array2<f64>,
-        learning_rate: f64,
-        regularization: Array2<f64>,
+        weights: &mut Array2<f32>,
+        gradient: &Array2<f32>,
+        learning_rate: f32,
+        regularization: &Array2<f32>,
     ) {
         match self {
             Self::Adam(adam) => adam.optimize(weights, gradient, learning_rate, regularization),

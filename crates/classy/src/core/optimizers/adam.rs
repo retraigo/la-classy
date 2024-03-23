@@ -2,19 +2,19 @@ use ndarray::{Array1, Array2};
 
 #[derive(Debug)]
 pub struct AdamOptimizer {
-    beta1: f64,
-    beta2: f64,
-    epsilon: f64,
-    m: Array2<f64>,
-    v: Array2<f64>,
-    t: usize,
+    beta1: f32,
+    beta2: f32,
+    epsilon: f32,
+    m: Array2<f32>,
+    v: Array2<f32>,
+    t: i32,
 }
 
 impl AdamOptimizer {
     pub fn new(
-        beta1: f64,
-        beta2: f64,
-        epsilon: f64,
+        beta1: f32,
+        beta2: f32,
+        epsilon: f32,
         input_size: usize,
         output_size: usize,
     ) -> AdamOptimizer {
@@ -31,22 +31,22 @@ impl AdamOptimizer {
     }
     pub fn optimize(
         &mut self,
-        weights: &mut Array2<f64>,
-        gradient: Array2<f64>,
-        learning_rate: f64,
-        l: Array2<f64>,
+        weights: &mut Array2<f32>,
+        gradient: &Array2<f32>,
+        learning_rate: f32,
+        l: &Array2<f32>,
     ) {
-        self.m = self.beta1 * &self.m + (1.0 - self.beta1) * (&gradient + &l);
-        self.v = self.beta2 * &self.v + (1.0 - self.beta2) * (&gradient * (&gradient) + &l * (&l));
+        self.m = self.beta1 * &self.m + (1.0 - self.beta1) * (gradient + l);
+        self.v = self.beta2 * &self.v + (1.0 - self.beta2) * (gradient * (gradient) + l * (l));
 
-        let m_hat = &self.m / (1.0 - self.beta1.powi(self.t as i32));
-        let v_hat = &self.v / (1.0 - self.beta2.powi(self.t as i32));
+        let m_hat = &self.m / (1.0 - self.beta1.powi(self.t));
+        let v_hat = &self.v / (1.0 - self.beta2.powi(self.t));
         *weights = weights.clone()
             - (&m_hat
                 .iter()
                 .zip(&v_hat.map(|x| x.sqrt()) + (self.epsilon))
                 .map(|(x, y)| x / y)
-                .collect::<Array1<f64>>()
+                .collect::<Array1<f32>>()
                 .to_shape((weights.nrows(), weights.ncols()))
                 .unwrap()
                 .to_owned()

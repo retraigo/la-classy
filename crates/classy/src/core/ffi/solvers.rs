@@ -48,18 +48,18 @@ pub unsafe extern "C" fn ols_solver() -> isize {
 
 #[no_mangle]
 pub unsafe extern "C" fn solve(
-    weights_ptr: *mut f64,
-    data_ptr: *const f64,
-    target_ptr: *const f64,
+    weights_ptr: *mut f32,
+    data_ptr: *const f32,
+    target_ptr: *const f32,
     n_samples: usize,
     n_features: usize,
     n_categories: usize,
     epochs: usize,
-    learning_rate: f64,
+    learning_rate: f32,
     fit_intercept: bool,
     n_batches: usize,
     silent: bool,
-    tolerance: f64,
+    tolerance: f32,
     patience: isize,
     regularizer: *const Regularization,
     solver: *mut Solver,
@@ -74,15 +74,12 @@ pub unsafe extern "C" fn solve(
         )
     };
 
-    let mut data: Array2<f64> =
+    let mut data: Array2<f32> =
         Array2::from_shape_vec((n_samples, n_features), x.to_vec()).unwrap();
-    println!("BEFORE {:?}", data.shape());
     if fit_intercept {
-        let new_col: Array2<f64> = Array2::ones((data.nrows(), 1));
+        let new_col: Array2<f32> = Array2::ones((data.nrows(), 1));
         data = ndarray::concatenate(Axis(0), &[new_col.view(), data.view()]).unwrap();
     }
-    println!("BEFORE {:?}", data.shape());
-
     let targets = Array2::from_shape_vec((n_samples, n_categories), y.to_vec()).unwrap();
     let weights = (*solver).solve(
         &data,
@@ -104,9 +101,9 @@ pub unsafe extern "C" fn solve(
 
 #[no_mangle]
 pub unsafe extern "C" fn predict(
-    res_ptr: *mut f64,
-    weights_ptr: *const f64,
-    data_ptr: *const f64,
+    res_ptr: *mut f32,
+    weights_ptr: *const f32,
+    data_ptr: *const f32,
     n_samples: usize,
     n_features: usize,
     n_weights: usize,
@@ -114,7 +111,7 @@ pub unsafe extern "C" fn predict(
     solver: *mut Solver,
 ) {
     let x = unsafe { std::slice::from_raw_parts(data_ptr, n_samples * n_features) };
-    let weights: &[f64] = unsafe {
+    let weights: &[f32] = unsafe {
         std::slice::from_raw_parts(
             weights_ptr,
             (n_features + if fit_intercept { 1 } else { 0 }) * n_weights,
@@ -128,7 +125,7 @@ pub unsafe extern "C" fn predict(
     .unwrap();
 
     if fit_intercept {
-        let new_col: Array2<f64> = Array2::ones((data.nrows(), 1));
+        let new_col: Array2<f32> = Array2::ones((data.nrows(), 1));
         data = ndarray::concatenate(Axis(1), &[new_col.view(), data.view()]).unwrap();
     }
     let res = (*solver).predict(&data, &w);

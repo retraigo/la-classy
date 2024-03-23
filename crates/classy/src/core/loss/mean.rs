@@ -1,28 +1,28 @@
 use ndarray::{Array1, Array2};
 
 // Mean Absolute Error
-pub fn mae(y: &Array2<f64>, y1: &Array2<f64>) -> Array2<f64> {
+pub fn mae(y: &Array2<f32>, y1: &Array2<f32>) -> Array2<f32> {
     (y1 - y).map(|x| x.abs())
 }
 
 // First Derivate of MAE
-pub fn mae_d(y: &Array2<f64>, y1: &Array2<f64>) -> Array2<f64> {
+pub fn mae_d(y: &Array2<f32>, y1: &Array2<f32>) -> Array2<f32> {
     (y1 - y).map(|x| x.signum())
 }
 
 // Mean Squared Error
-pub fn mse(y: &Array2<f64>, y1: &Array2<f64>) -> Array2<f64> {
+pub fn mse(y: &Array2<f32>, y1: &Array2<f32>) -> Array2<f32> {
     let diff = y1 - y;
     &diff * &diff
 }
 
 // First Derivate of MSE
-pub fn mse_d(y: &Array2<f64>, y1: &Array2<f64>) -> Array2<f64> {
+pub fn mse_d(y: &Array2<f32>, y1: &Array2<f32>) -> Array2<f32> {
     y1 - y
 }
 
-pub fn huber(y: &Array2<f64>, y1: &Array2<f64>, delta: f64) -> Array2<f64> {
-    let loss: Array1<f64> = y1
+pub fn huber(y: &Array2<f32>, y1: &Array2<f32>, delta: f32) -> Array2<f32> {
+    let loss: Array1<f32> = y1
         .iter()
         .zip(y.iter())
         .map(|(y1_i, y_i)| {
@@ -37,8 +37,8 @@ pub fn huber(y: &Array2<f64>, y1: &Array2<f64>, delta: f64) -> Array2<f64> {
     loss.to_shape((y.nrows(), y.ncols())).unwrap().to_owned()
 }
 
-pub fn huber_d(y: &Array2<f64>, y1: &Array2<f64>, delta: f64) -> Array2<f64> {
-    let gradient: Array1<f64> = y1
+pub fn huber_d(y: &Array2<f32>, y1: &Array2<f32>, delta: f32) -> Array2<f32> {
+    let gradient: Array1<f32> = y1
         .iter()
         .zip(y.iter())
         .map(|(y1_i, y_i)| {
@@ -53,7 +53,7 @@ pub fn huber_d(y: &Array2<f64>, y1: &Array2<f64>, delta: f64) -> Array2<f64> {
     gradient.to_shape((y.nrows(), y.ncols())).unwrap().to_owned()
 }
 
-pub fn tukey(y: &Array2<f64>, y1: &Array2<f64>, c: f64) -> Array2<f64> {
+pub fn tukey(y: &Array2<f32>, y1: &Array2<f32>, c: f32) -> Array2<f32> {
     let c_squared = c * c / 6.0;
     (y1 - y).map(|el| {
         let r = el.abs();
@@ -65,13 +65,13 @@ pub fn tukey(y: &Array2<f64>, y1: &Array2<f64>, c: f64) -> Array2<f64> {
     })
 }
 
-pub fn tukey_d(y: &Array2<f64>, y1: &Array2<f64>, c: f64) -> Array2<f64> {
+pub fn tukey_d(y: &Array2<f32>, y1: &Array2<f32>, c: f32) -> Array2<f32> {
     (y1 - y).map(|el| {
         let r = el.abs();
         if r <= c {
             r * (1.0 - ((r / c).powi(2))).powi(2)
         } else {
-            0f64
+            0f32
         }
     })
 }
