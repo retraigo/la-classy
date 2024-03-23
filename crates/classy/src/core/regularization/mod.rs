@@ -1,4 +1,4 @@
-use nalgebra::DMatrix;
+use ndarray::Array2;
 
 pub struct Regularization {
     l1_strength: f64,
@@ -33,21 +33,21 @@ impl Regularization {
             }
         }
     }
-    pub fn l1_coeff(&self, x: &DMatrix<f64>) -> DMatrix<f64> {
+    pub fn l1_coeff(&self, x: &Array2<f64>) -> Array2<f64> {
         if self.l1_strength == 0.0 {
-            DMatrix::zeros(x.nrows(), x.ncols())
+            Array2::zeros((x.nrows(), x.ncols()))
         } else {
             self.l1_strength * x.map(|w| w.abs())
         }
     }
-    pub fn l2_coeff(&self, x: &DMatrix<f64>) -> DMatrix<f64> {
+    pub fn l2_coeff(&self, x: &Array2<f64>) -> Array2<f64> {
         if self.l2_strength == 0.0 {
-            DMatrix::zeros(x.nrows(), x.ncols())
+            Array2::zeros((x.nrows(), x.ncols()))
         } else {
             self.l2_strength * x.map(|w| w * w)
         }
     }
-    pub fn coeff(&self, x: &DMatrix<f64>) -> DMatrix<f64> {
+    pub fn coeff(&self, x: &Array2<f64>) -> Array2<f64> {
         self.l1_coeff(x) + self.l2_coeff(x)
     }
 }

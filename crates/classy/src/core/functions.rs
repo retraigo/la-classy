@@ -1,8 +1,8 @@
-use nalgebra::DVector;
+use ndarray::Array1;
 
-pub fn softmax(logits: &DVector<f64>) -> DVector<f64> {
+pub fn softmax(logits: &Array1<f64>) -> Array1<f64> {
     // Calculate the exponential of each element in the vector
-    let logit_exps: DVector<f64> = logits.map(|val| val.exp());
+    let logit_exps: Array1<f64> = logits.map(|val| val.exp());
 
     // Calculate the sum of exponential values
     let sum_exp: f64 = logit_exps.sum();

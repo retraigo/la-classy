@@ -1,25 +1,22 @@
 mod gd;
-mod ols;
 mod sag;
 
 pub use gd::GradientDescentSolver;
-use nalgebra::DMatrix;
-pub use ols::OrdinaryLeastSquares;
+use ndarray::Array2;
 pub use sag::SAGSolver;
 
 use super::regularization::Regularization;
 
 pub enum Solver {
     GD(GradientDescentSolver),
-    OLS(OrdinaryLeastSquares),
     SAG(SAGSolver)
 }
 
 impl Solver {
     pub fn solve(
         &mut self,
-        data: &DMatrix<f64>,
-        targets: &DMatrix<f64>,
+        data: &Array2<f64>,
+        targets: &Array2<f64>,
         epochs: usize,
         learning_rate: f64,
         n_batches: usize,
@@ -27,7 +24,7 @@ impl Solver {
         tolerance: f64,
         patience: isize,
         regularizer: &Regularization,
-    ) -> DMatrix<f64> {
+    ) -> Array2<f64> {
         match self {
             Self::GD(solver) => solver.train(
                 data,
@@ -51,13 +48,11 @@ impl Solver {
                 patience,
                 regularizer,
             ),
-            Self::OLS(solver) => solver.train(data, targets, silent),
         }
     }
-    pub fn predict(&self, data: &DMatrix<f64>, weights: &DMatrix<f64>) -> DMatrix<f64> {
+    pub fn predict(&self, data: &Array2<f64>, weights: &Array2<f64>) -> Array2<f64> {
         match self {
             Self::GD(solver) => solver.predict(data, weights),
-            Self::OLS(solver) => solver.predict(data, weights),
             Self::SAG(solver) => solver.predict(data, weights),
         }
     }

@@ -1,4 +1,4 @@
-use nalgebra::DMatrix;
+use ndarray::Array2;
 mod adam;
 mod rmsprop;
 
@@ -48,16 +48,16 @@ impl Optimizer {
     }
     pub fn optimize(
         &mut self,
-        weights: &mut DMatrix<f64>,
-        gradient: DMatrix<f64>,
+        weights: &mut Array2<f64>,
+        gradient: Array2<f64>,
         learning_rate: f64,
-        regularization: DMatrix<f64>,
+        regularization: Array2<f64>,
     ) {
         match self {
             Self::Adam(adam) => adam.optimize(weights, gradient, learning_rate, regularization),
             Self::RMSProp(rmsprop) => rmsprop.optimize(weights, gradient, learning_rate, regularization),
             Self::None => {
-                *weights -= (gradient + regularization) * learning_rate;
+                *weights = weights.clone() - (gradient + regularization) * learning_rate;
             }
         }
     }

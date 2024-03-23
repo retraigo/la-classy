@@ -1,4 +1,4 @@
-use nalgebra::DMatrix;
+use ndarray::{s, Array2};
 
 use crate::core::{
     activation::Activation, loss::LossFunction, optimizers::Optimizer,
@@ -15,8 +15,8 @@ pub struct GradientDescentSolver {
 impl GradientDescentSolver {
     pub fn train(
         &mut self,
-        data: &DMatrix<f64>,
-        targets: &DMatrix<f64>,
+        data: &Array2<f64>,
+        targets: &Array2<f64>,
         epochs: usize,
         learning_rate: f64,
         n_batches: usize,
@@ -24,11 +24,11 @@ impl GradientDescentSolver {
         tolerance: f64,
         patience: isize,
         regularizer: &Regularization,
-    ) -> DMatrix<f64> {
+    ) -> Array2<f64> {
         let mut rng = rand::thread_rng();
         let mut eta: f64;
 
-        let mut weights = DMatrix::from_element(data.ncols(), targets.ncols(), 1.0);
+        let mut weights = Array2::from_elem((data.ncols(), targets.ncols()), 1.0);
 
         let mut best_weights = weights.clone();
         let mut best_loss = f64::INFINITY;
@@ -47,20 +47,24 @@ impl GradientDescentSolver {
             for j in order {
                 let remaining = data.nrows() - (j * batch_size);
                 let current_batch_size = if remaining < batch_size {
-                    remaining 
+                    remaining
                 } else {
                     batch_size
                 };
-                let batch_data = data.rows(j * batch_size, current_batch_size);
-                let h: DMatrix<f64> = self.activation.call_on_all(batch_data * &weights);
-                let y: DMatrix<f64> = targets.rows(j * batch_size, current_batch_size).map(|x| x);
+                let start = j * batch_size;
+                let batch_data = data.slice(s![start..(start + current_batch_size), ..]);
+                let h: Array2<f64> = self.activation.call_on_all(batch_data.dot(&weights));
+                let y: Array2<f64> = targets.slice(s![start..(start + current_batch_size), ..]).clone().map(|x| *x);
                 let errors = self.loss.loss_d(&y, &h);
                 eta = self.scheduler.eta(learning_rate, epoch);
-                let gradient = &batch_data.transpose() * &errors;
+                let gradient = &batch_data.t().dot(&errors);
                 let coeff = regularizer.coeff(&weights);
-                self.optimizer.optimize(&mut weights, gradient, eta, coeff);
+                self.optimizer.optimize(&mut weights, gradient.clone(), eta, coeff);
                 if tolerance > 0.0 {
-                    let difference = (&weights - &previous_weights).map(|x| x.powi(2)).sum().sqrt();
+                    let difference = (&weights - &previous_weights)
+                        .map(|x| x.powi(2))
+                        .sum()
+                        .sqrt();
                     if difference < tolerance {
                         println!("Converged in {} epochs.", epoch);
                         break 'iters;
@@ -70,7 +74,7 @@ impl GradientDescentSolver {
                 }
             }
             if !silent || patience != -1 {
-                let h = self.activation.call_on_all(data * &weights);
+                let h = self.activation.call_on_all(data.dot(&weights));
                 let error: f64 = self.loss.loss(&targets, &h).sum() / targets.len() as f64;
                 if patience != -1 {
                     if error < best_loss {
@@ -84,7 +88,7 @@ impl GradientDescentSolver {
                             weights = best_weights.clone();
                             break;
                         }
-                    }    
+                    }
                 }
                 if !silent {
                     println!("Epoch <{}: Current Errors {}", epoch, error);
@@ -93,8 +97,8 @@ impl GradientDescentSolver {
         }
         weights
     }
-    pub fn predict(&self, data: &DMatrix<f64>, weights: &DMatrix<f64>) -> DMatrix<f64> {
-        let res = data * weights;
+    pub fn predict(&self, data: &Array2<f64>, weights: &Array2<f64>) -> Array2<f64> {
+        let res = data.dot(weights);
         self.activation.call_on_all(res)
     }
 }

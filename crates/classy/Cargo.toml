@@ -9,5 +9,6 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-nalgebra = "0.32.3"
 rand = "0.8.5"
+ndarray = "0.15"
+ndarray-rand = "0.14"

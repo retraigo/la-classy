@@ -1,4 +1,4 @@
-use nalgebra::DMatrix;
+use ndarray::{s, Array2};
 
 use crate::core::{
     activation::Activation, loss::LossFunction, optimizers::Optimizer,
@@ -13,8 +13,8 @@ pub struct SAGSolver {
 impl SAGSolver {
     pub fn train(
         &mut self,
-        data: &DMatrix<f64>,
-        targets: &DMatrix<f64>,
+        data: &Array2<f64>,
+        targets: &Array2<f64>,
         epochs: usize,
         learning_rate: f64,
         n_batches: usize,
@@ -22,13 +22,13 @@ impl SAGSolver {
         tolerance: f64,
         patience: isize,
         regularizer: &Regularization,
-    ) -> DMatrix<f64> {
+    ) -> Array2<f64> {
         let mut eta: f64;
 
-        let mut weights = DMatrix::from_element(data.ncols(), targets.ncols(), 1.0);
+        let mut weights = Array2::from_elem((data.ncols(), targets.ncols()), 1.0);
         let mut gradients =
-            vec![DMatrix::from_element(data.ncols(), targets.ncols(), 0.0); data.nrows()];
-        let mut average_gradients = DMatrix::from_element(data.ncols(), targets.ncols(), 0.0);
+            vec![Array2::from_elem((data.ncols(), targets.ncols()), 0.0); data.nrows()];
+        let mut average_gradients = Array2::from_elem((data.ncols(), targets.ncols()), 0.0);
 
         let mut best_weights = weights.clone();
         let mut best_loss = f64::INFINITY;
@@ -48,13 +48,13 @@ impl SAGSolver {
 
                 // Calculate the average gradient for the minibatch
                 for i in batch_start..batch_end {
-                    let current_data: DMatrix<f64> = data.rows(i, 1).map(|x| x);
-                    let h: DMatrix<f64> = self.predict(&current_data, &weights);
-                    let y: DMatrix<f64> = targets.rows(i, 1).map(|x| x);
+                    let current_data: Array2<f64> = data.slice(s![i..i + 1, ..]).map(|x| *x);
+                    let h: Array2<f64> = self.predict(&current_data, &weights);
+                    let y: Array2<f64> = targets.slice(s![i..i + 1, ..]).map(|x| *x);
                     let errors = self.loss.loss_d(&y, &h);
-                    let gradient = data.row(i).transpose() * &errors;
-                    average_gradients -= gradients[i].clone();
-                    average_gradients += &gradient;
+                    let gradient = &data.slice(s![i..i + 1, ..]).t().dot(&errors);
+                    average_gradients = average_gradients - gradients[i].clone();
+                    average_gradients = average_gradients + gradient.clone();
                     gradients[i] = gradient.clone();
                 }
                 let coeff = regularizer.coeff(&weights);
@@ -66,7 +66,10 @@ impl SAGSolver {
                     coeff,
                 );
                 if tolerance > 0.0 {
-                    let difference = (&weights - &previous_weights).map(|x| x.powi(2)).sum().sqrt();
+                    let difference = (&weights - &previous_weights)
+                        .map(|x| x.powi(2))
+                        .sum()
+                        .sqrt();
                     if difference < tolerance {
                         println!("Converged in {} epochs.", epoch);
                         break 'iters;
@@ -76,7 +79,7 @@ impl SAGSolver {
                 }
             }
             if !silent || patience != -1 {
-                let h = self.activation.call_on_all(data * &weights);
+                let h = self.activation.call_on_all(data.dot(&weights));
                 let error: f64 = self.loss.loss(&targets, &h).sum() / targets.len() as f64;
                 if patience != -1 {
                     if error < best_loss {
@@ -90,7 +93,7 @@ impl SAGSolver {
                             weights = best_weights.clone();
                             break;
                         }
-                    }    
+                    }
                 }
                 if !silent {
                     println!("Epoch <{}: Current Errors {}", epoch, error);
@@ -99,8 +102,8 @@ impl SAGSolver {
         }
         weights
     }
-    pub fn predict(&self, data: &DMatrix<f64>, weights: &DMatrix<f64>) -> DMatrix<f64> {
-        let res = data * weights;
+    pub fn predict(&self, data: &Array2<f64>, weights: &Array2<f64>) -> Array2<f64> {
+        let res = data.dot(weights);
         self.activation.call_on_all(res)
     }
 }

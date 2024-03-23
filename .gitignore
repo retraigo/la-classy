@@ -3,3 +3,5 @@
 /test
 /rust/target
 .vscode/
+test.ts
+iris.csv

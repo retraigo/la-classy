@@ -1,53 +1,59 @@
-use nalgebra::DMatrix;
+use ndarray::{Array1, Array2};
 
 // Mean Absolute Error
-pub fn mae(y: &DMatrix<f64>, y1: &DMatrix<f64>) -> DMatrix<f64> {
+pub fn mae(y: &Array2<f64>, y1: &Array2<f64>) -> Array2<f64> {
     (y1 - y).map(|x| x.abs())
 }
 
 // First Derivate of MAE
-pub fn mae_d(y: &DMatrix<f64>, y1: &DMatrix<f64>) -> DMatrix<f64> {
+pub fn mae_d(y: &Array2<f64>, y1: &Array2<f64>) -> Array2<f64> {
     (y1 - y).map(|x| x.signum())
 }
 
 // Mean Squared Error
-pub fn mse(y: &DMatrix<f64>, y1: &DMatrix<f64>) -> DMatrix<f64> {
+pub fn mse(y: &Array2<f64>, y1: &Array2<f64>) -> Array2<f64> {
     let diff = y1 - y;
-    diff.component_mul(&diff)
+    &diff * &diff
 }
 
 // First Derivate of MSE
-pub fn mse_d(y: &DMatrix<f64>, y1: &DMatrix<f64>) -> DMatrix<f64> {
+pub fn mse_d(y: &Array2<f64>, y1: &Array2<f64>) -> Array2<f64> {
     y1 - y
 }
 
-pub fn huber(y: &DMatrix<f64>, y1: &DMatrix<f64>, delta: f64) -> DMatrix<f64> {
-    let mut loss = DMatrix::zeros(y.nrows(), y.ncols());
-    for i in 0..y.len() {
-        let residual = y[i] - y1[i];
-        if residual.abs() <= delta {
-            loss[i] = 0.5 * residual.powi(2);
-        } else {
-            loss[i] = delta * (residual.abs() - 0.5 * delta);
-        }
-    }
-    loss
+pub fn huber(y: &Array2<f64>, y1: &Array2<f64>, delta: f64) -> Array2<f64> {
+    let loss: Array1<f64> = y1
+        .iter()
+        .zip(y.iter())
+        .map(|(y1_i, y_i)| {
+            let residual = y_i - y1_i;
+            if residual.abs() <= delta {
+                0.5 * residual.powi(2)
+            } else {
+                delta * (residual.abs() - 0.5 * delta)
+            }
+        })
+        .collect();
+    loss.to_shape((y.nrows(), y.ncols())).unwrap().to_owned()
 }
 
-pub fn huber_d(y: &DMatrix<f64>, y1: &DMatrix<f64>, delta: f64) -> DMatrix<f64> {
-    let mut gradient = DMatrix::zeros(y.nrows(), y.ncols());
-    for i in 0..y.len() {
-        let residual = y[i] - y1[i];
-        if residual.abs() <= delta {
-            gradient[i] = -residual;
-        } else {
-            gradient[i] = -delta * residual.signum();
-        }
-    }
-    gradient
+pub fn huber_d(y: &Array2<f64>, y1: &Array2<f64>, delta: f64) -> Array2<f64> {
+    let gradient: Array1<f64> = y1
+        .iter()
+        .zip(y.iter())
+        .map(|(y1_i, y_i)| {
+            let residual = y_i - y1_i;
+            if residual.abs() <= delta {
+                -residual
+            } else {
+                -delta * residual.signum()
+            }
+        })
+        .collect();
+    gradient.to_shape((y.nrows(), y.ncols())).unwrap().to_owned()
 }
 
-pub fn tukey(y: &DMatrix<f64>, y1: &DMatrix<f64>, c: f64) -> DMatrix<f64> {
+pub fn tukey(y: &Array2<f64>, y1: &Array2<f64>, c: f64) -> Array2<f64> {
     let c_squared = c * c / 6.0;
     (y1 - y).map(|el| {
         let r = el.abs();
@@ -59,7 +65,7 @@ pub fn tukey(y: &DMatrix<f64>, y1: &DMatrix<f64>, c: f64) -> DMatrix<f64> {
     })
 }
 
-pub fn tukey_d(y: &DMatrix<f64>, y1: &DMatrix<f64>, c: f64) -> DMatrix<f64> {
+pub fn tukey_d(y: &Array2<f64>, y1: &Array2<f64>, c: f64) -> Array2<f64> {
     (y1 - y).map(|el| {
         let r = el.abs();
         if r <= c {
