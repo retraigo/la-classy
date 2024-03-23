@@ -1,4 +1,5 @@
 use ndarray::Array2;
+use std::ops::{Mul, SubAssign};
 
 #[derive(Debug)]
 pub struct RMSPropOptimizer {
@@ -32,8 +33,8 @@ impl RMSPropOptimizer {
         self.acc_sg = &self.acc_sg + (1.0 - self.decay_rate) * gradient * (gradient);
 
         // Update parameters using RMSprop update rule
-        *weights = weights.clone()
-            - learning_rate
-                * (gradient / (&((&self.acc_sg + (self.epsilon)).map(|x| x.sqrt()))) - l);
+        weights.sub_assign(
+            &learning_rate.mul(gradient / (&((&self.acc_sg + (self.epsilon)).map(|x| x.sqrt()))) - l),
+        );
     }
 }

@@ -17,7 +17,7 @@ impl Activation {
                 let mut res = Array2::zeros((h.nrows(), h.ncols()));
                 for (mut res_row, h_row) in res.axis_iter_mut(Axis(0)).zip(h.axis_iter(Axis(0))) {
                     let exp_values = h_row.map(|v| v.exp());
-                    let sum_exp: f32 = exp_values.iter().sum();
+                    let sum_exp: f32 = exp_values.sum();
                     res_row.assign(&(exp_values / sum_exp));
                 }
                 res

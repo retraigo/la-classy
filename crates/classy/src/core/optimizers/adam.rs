@@ -1,4 +1,5 @@
-use ndarray::{Array1, Array2};
+use ndarray::Array2;
+use std::ops::{SubAssign, Mul, Div, Add};
 
 #[derive(Debug)]
 pub struct AdamOptimizer {
@@ -37,20 +38,11 @@ impl AdamOptimizer {
         l: &Array2<f32>,
     ) {
         self.m = self.beta1 * &self.m + (1.0 - self.beta1) * (gradient + l);
-        self.v = self.beta2 * &self.v + (1.0 - self.beta2) * (gradient * (gradient) + l * (l));
+        self.v = self.beta2 * &self.v + (1.0 - self.beta2) * (gradient.mul(gradient) + l * (l));
 
         let m_hat = &self.m / (1.0 - self.beta1.powi(self.t));
         let v_hat = &self.v / (1.0 - self.beta2.powi(self.t));
-        *weights = weights.clone()
-            - (&m_hat
-                .iter()
-                .zip(&v_hat.map(|x| x.sqrt()) + (self.epsilon))
-                .map(|(x, y)| x / y)
-                .collect::<Array1<f32>>()
-                .to_shape((weights.nrows(), weights.ncols()))
-                .unwrap()
-                .to_owned()
-                * learning_rate);
+        weights.sub_assign(&learning_rate.mul(m_hat).div(v_hat.map(|x| x.sqrt()).add(self.epsilon)));
         self.t += 1;
     }
 }
