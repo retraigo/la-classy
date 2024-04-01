@@ -1,4 +1,4 @@
-use nalgebra::DMatrix;
+use ndarray::Array2;
 
 pub mod crossentropy;
 pub mod hinge;
@@ -8,15 +8,15 @@ pub enum LossFunction {
     BinCrossEntropy,
     CrossEntropy,
     Hinge,
-    Huber(f64),
+    Huber(f32),
     MAE,
     MSE,
     SmoothedHinge,
-    Tukey(f64),
+    Tukey(f32),
 }
 
 impl LossFunction {
-    pub fn loss(&self, y: &DMatrix<f64>, y1: &DMatrix<f64>) -> DMatrix<f64> {
+    pub fn loss(&self, y: &Array2<f32>, y1: &Array2<f32>) -> Array2<f32> {
         match self {
             LossFunction::BinCrossEntropy => crossentropy::bin_cross_entropy(&y, &y1),
             LossFunction::CrossEntropy => crossentropy::cross_entropy(&y, &y1),
@@ -28,7 +28,7 @@ impl LossFunction {
             LossFunction::Tukey(c) => mean::tukey(y, y1, *c),
         }
     }
-    pub fn loss_d(&self, y: &DMatrix<f64>, y1: &DMatrix<f64>) -> DMatrix<f64> {
+    pub fn loss_d(&self, y: &Array2<f32>, y1: &Array2<f32>) -> Array2<f32> {
         match self {
             LossFunction::BinCrossEntropy => crossentropy::bin_cross_entropy_d(&y, &y1),
             LossFunction::CrossEntropy => crossentropy::cross_entropy_d(&y, &y1),

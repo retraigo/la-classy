@@ -1,3 +1,3 @@
 import type { MatrixLike } from "../../deps.ts";
 
-export type MaybeMatrix = MatrixLike<"f64">;
+export type MaybeMatrix = MatrixLike<"f32">;

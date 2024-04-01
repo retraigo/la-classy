@@ -3,3 +3,8 @@
 /test
 /rust/target
 .vscode/
+test.ts
+iris.csv
+bench/nalgebra.ts
+bench/ndarray.ts
+bench/netsaur.ts

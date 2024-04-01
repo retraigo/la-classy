@@ -12,7 +12,7 @@ export const lossSymbols = {
     result: "pointer",
   } as const,
   huber_loss: {
-    parameters: ["f64"],
+    parameters: ["f32"],
     result: "pointer",
   } as const,
   mae_loss: {
@@ -28,7 +28,7 @@ export const lossSymbols = {
     result: "pointer",
   } as const,
   tukey_loss: {
-    parameters: ["f64"],
+    parameters: ["f32"],
     result: "pointer",
   } as const,
 };

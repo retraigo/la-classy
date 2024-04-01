@@ -11,7 +11,7 @@ const options: FetchOptions = {
       import.meta.url,
     )
     : "./target/release/",
-  cache: "use",
+  cache: "reloadAll",
 };
 
 

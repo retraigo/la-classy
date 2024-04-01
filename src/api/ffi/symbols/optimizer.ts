@@ -1,9 +1,9 @@
 export const optimizerSymbols = {
     adam_optimizer: {
       parameters: [
-        "f64",
-        "f64",
-        "f64",
+        "f32",
+        "f32",
+        "f32",
         "usize",
         "usize",
       ],
@@ -11,8 +11,8 @@ export const optimizerSymbols = {
     } as const,
     rmsprop_optimizer: {
       parameters: [
-        "f64",
-        "f64",
+        "f32",
+        "f32",
         "usize",
         "usize",
       ],

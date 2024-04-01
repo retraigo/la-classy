@@ -63,16 +63,16 @@ const solver = new GradientDescentSolver({
 solver.train(
   new Matrix(
     x.map((n) => [n]),
-    "f64"
+    "f32"
   ),
-  new Matrix(y, "f64"),
+  new Matrix(y, "f32"),
   { silent: false, fit_intercept: true, epochs: 700, n_batches: 2 }
 );
 
 const res = solver.predict(
   new Matrix(
     x.map((n) => [n]),
-    "f64"
+    "f32"
   )
 );
 

@@ -16,7 +16,7 @@ pub unsafe extern "C" fn hinge_loss() -> isize {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn huber_loss(delta: f64) -> isize {
+pub unsafe extern "C" fn huber_loss(delta: f32) -> isize {
     std::mem::transmute::<Box<LossFunction>, isize>(std::boxed::Box::new(LossFunction::Huber(delta)))
 }
 
@@ -36,6 +36,6 @@ pub unsafe extern "C" fn smooth_hinge_loss() -> isize {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn tukey_loss(c: f64) -> isize {
+pub unsafe extern "C" fn tukey_loss(c: f32) -> isize {
     std::mem::transmute::<Box<LossFunction>, isize>(std::boxed::Box::new(LossFunction::Tukey(c)))
 }
